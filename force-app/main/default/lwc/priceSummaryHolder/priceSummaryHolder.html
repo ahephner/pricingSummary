@@ -1,0 +1,14 @@
+<template>
+    <div class="slds-grid">
+        <div class="slds-col slds-size_1-of-2">
+            <c-price-summary onsearchvars={handleSearch}
+            onnewcust={newAccountGetPB}></c-price-summary>
+        </div>
+        <template if:true={foundPrice}>
+            <div class="slds-col slds-size_1-of-2">
+                <p class="slds-text-heading_large">Price Book Name: {priceBookName}</p>
+                <p class="slds-text-heading_large">List Price: {listPrice}</p>
+            </div>
+        </template>
+    </div>
+</template>

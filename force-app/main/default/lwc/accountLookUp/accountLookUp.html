@@ -1,0 +1,56 @@
+<template>
+    
+        <lightning-input
+            name="enter-search"
+            label="Account"
+            type="search"
+            onchange={handleKeyUp}
+            data-my-id="in4"
+            value={accName}
+        ></lightning-input>
+        <template if:true={showResult}>
+            <div id='listbox'
+                 role='listbox'
+                 tabindex='0'
+            ><ul role='presentation' class={getListBoxClass}>
+                <div if:true={loading}>
+                    <lightning-spinner alternative-text="Loading" size="small"></lightning-spinner>
+                </div>
+               <template if:true={showResult} for:each={results} for:item="x" for:index="index">
+                   <li key={x.Id} data-recordid={x.Id} data-name={x.Name} data-value={x.Product_Sub_Total__c} value={x.Name} role='option' class='hover' onclick={itemSelect}>
+                              <span class="slds-media__body">
+                                <span class="slds-listbox__option-text_entity space">
+                                    <lightning-formatted-rich-text
+                                        value={x.Name}
+                                    >
+                                    </lightning-formatted-rich-text>
+                                </span>
+                            </span>
+                            <span class="slds-listbox__option-meta">
+                                <lightning-formatted-rich-text
+                                      value={x.Product_Sub_Total__c}
+                                >
+                                </lightning-formatted-rich-text>
+                            </span>
+                   </li>
+                </template> 
+            </ul>
+        </div>
+    </template>
+    <!--Need to make it so this does not show unless data-->
+        <!-- <template if:true={selectedSO}>
+            <c-select-reward-s-o selection={selectedSO}
+                                onremoveitem={removeSO}></c-select-reward-s-o>
+                                <hr/>
+                                <div class="slds-float_right"> -->
+                                    <!-- <lightning-button variant="brand-outline" label="Back" 
+                                                    title="Back" onclick={handleBack} 
+                                                    class="slds-m-left_x-small"></lightning-button> -->
+                                    <!-- <lightning-button variant="brand" label="Next" 
+                                                    title="Successful action" onclick={goNext} 
+                                                    class="slds-m-left_x-small"></lightning-button> -->
+                                    <!-- <button type="button" onclick={prodInfo} class="slds-button slds-button_brand">prod info</button> -->
+                                <!-- </div>
+        </template> -->
+    
+</template>
