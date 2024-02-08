@@ -42,20 +42,29 @@
                     placeholder=""
                     options={orderByOptions}
                     onchange={handleOrderBy} ></lightning-combobox>
-                </div>
-                <div class="slds-col slds-size_1-of-3 slds-m-left_small">
-                    <lightning-input 
-                      type="number"
-                      label="input2"
-                    ></lightning-input>
 
                     <lightning-combobox
-                        name="progress"
-                        label="Limit Results"
-                        value={limitValue}
-                        placeholder="Select Progress"
-                        options={limitOptions}
-                        onchange={handleLimits} ></lightning-combobox>
+                    name="progress"
+                    label="Limit Results"
+                    value={limitValue}
+                    placeholder="Select Progress"
+                    options={limitOptions}
+                    onchange={handleLimits} ></lightning-combobox>
+                </div>
+                <div class="slds-col slds-size_1-of-3 slds-m-left_small">
+                    <lightning-combobox
+                    name="primary category"
+                    label="Primary Category"
+                    value={primCat}
+                    options={primaryCategory}
+                    onchange={handlePrimCat} ></lightning-combobox>
+
+                    <lightning-combobox
+                    name="field"
+                    label="Filter Field"
+                    value={field}
+                    options={priceFields}
+                    onchange={handlePriceField} ></lightning-combobox>
                 </div>
             </div>
         </template>

@@ -1,36 +1,76 @@
 import { LightningElement } from 'lwc';
-
+import singlePicklist from '@salesforce/apex/lwcHelper.getPickListValues'; 
+import LightningAlert from 'lightning/alert';
 export default class PriceSummary extends LightningElement {
     hideFilter = true;
     limitValue = 'no';
     orderByValue = 'none';
     product2Id;
-    accountId;  
-    handleSearch(){
+    accountId;
+    primaryCategory;   
+    primCat = 'All';
+    
+    field = 'UnitPrice'; 
+    connectedCallback(){
+        singlePicklist({objName:'Product2', fieldAPI:'Primary_Category__c'})
+            .then((x)=>{
+                this.primaryCategory = x; 
+            })
+    }
+    async handleSearch(){
         let pass = this.valid()
+         
         if(pass){
             const info =  new CustomEvent('searchvars',{
                 detail:{
                     product2:this.product2Id,
                     accId: this.accountId,
-                    limitAmount: this.limitValue,
-                    orderBy: this.orderByValue
+                    priceField: this.field, 
+                    limitAmount: this.limitValue === 'no'? 0 : Number(this.limitValue),
+                    orderBy: this.orderByValue,
+                    primCat: this.primCat
                 }
             })
-            console.log(info.detail.product2)
+            
             this.dispatchEvent(info);
+        }else{
+            await LightningAlert.open({
+                message: 'Please select account or product!',
+                theme: 'error', // a red theme intended for error states
+                label: 'Error!', // this is the header text
+            });
         }
     }
 
+    // handleSearch(){
+    //     console.log(`product2 ${this.product2Id}  accId: ${this.accountId} priceField: ${this.field}`)
+    //     console.log(`limitAmount: ${this.limitValue} orderBy: ${this.orderByValue} primCat: ${this.primCat}`)
+    // }
     showFilter(){
        this.hideFilter = !this.hideFilter ? true : false; 
+    }
+    //pricefields
+    get priceFields(){
+        return[
+            {label:'List Price', value:'UnitPrice'},
+            {label:'Cost', value:'Product_Cost__c'},
+            {label:'Floor', value:'Floor_Price__c'},
+            {label:'Floor Margin', value:'Floor_Margin__c'},
+            {label:'Level 1', value:'Level_1_UserView__c'},
+            {label: 'Level 1 Margin', value: 'Level_One_Margin__c'}, 
+            {label:'Level 2', value:'Level_2_UserView__c'},
+        ]
+    }
+
+    handlePriceField(evt){
+        this.field = evt.detail.value; 
     }
     //order by
     get orderByOptions(){
         return[
             {label:'None', value:'none'},
-            {label:'Highest Price', value:'high'},
-            {label:'Lowest Price', value:'low'}
+            {label:'Highest Price', value:'ASC'},
+            {label:'Lowest Price', value:'DESC'}
         ]
     }
 
@@ -63,9 +103,12 @@ export default class PriceSummary extends LightningElement {
         this.dispatchEvent(newAccount);
     }
 
+    handlePrimCat(x){
+        this.primCat = x.detail.value; 
+    }
     valid(){
         let good = true; 
-        if(this.accountId === undefined || 
+        if(this.accountId === undefined && 
            this.product2Id === undefined){
             good = false; 
            }
