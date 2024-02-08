@@ -1,14 +1,16 @@
 import { LightningElement } from 'lwc';
 import getPriceBooks from '@salesforce/apex/getPriceBooks.getPriceBookIds';
-//import getBestPrice from '@salesforce/apex/getPriceBooks.getBestPrice';
+import getBestPrice from '@salesforce/apex/getPriceBooks.getBestPrice';
 import getBestPriceString from '@salesforce/apex/getPriceBooks.getBestPriceString';
 export default class PriceSummaryHolder extends LightningElement {
     acctPriceBooks = [];
+    fetchedData = {};
     priceBookName;
     listPrice; 
     async newAccountGetPB(event){
         //no double values and assign the standard price book up front; 
         let list = new Set(["01s410000077vSKAAY"])
+        //let list = new Set(); 
         let data = await getPriceBooks({accountId: event.detail}); 
         //console.table(this.acctPriceBooks);
         if(data.length>=1 && data != undefined){
@@ -27,16 +29,17 @@ export default class PriceSummaryHolder extends LightningElement {
         let orderBy = ext.detail?.orderBy ?? '';
         let primCat = ext.detail?.primCat ?? '';
         let priceField = ext.detail?.priceField ?? 'error';
-
-        let searchString = `'select ${priceField} , Pricebook2.Name, Pricebook2.IsStandard from PricebookEntry'`
-        //+ ` where IsActive = true and Pricebook2Id in (${this.acctPriceBooks}) and Product2ID= ${prodId}`
-        //orderBy != 'none'? searchString += ` ORDER BY ${priceField} ${orderBy}` : searchString += `ORDER BY ${priceField} ASC` 
-        //limitAmount > 0 ? searchString += ` limit ${limitAmount}` : ''
+ 
+        let apexOrderBy = orderBy != 'none'? ' ORDER BY '+priceField +' '+orderBy+'' : ' ORDER BY '+ priceField +' ASC';
         
-        console.log(this.acctPriceBooks);
-        console.log(searchString); 
-        let back = await getBestPriceString({priceBookIds: this.acctPriceBooks, queryString: searchString})
-                        console.log(back)
+        
+       
+         
+        let back = await getBestPriceString({priceBooksAcc: this.acctPriceBooks, priceField: priceField, productId:prodId,orderBy:apexOrderBy  })
+
+        //this.fetchedData = {info: back};
+        this.fetchedData = priceField;  
+        console.log(this.fetchedData)
         // if(prodId){
         //     let data = await getBestPrice({priceBookIds: this.acctPriceBooks, productId: prodId});
         //     this.priceBookName = data[0].Pricebook2.Name;
