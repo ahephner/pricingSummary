@@ -4,12 +4,22 @@
             <c-price-summary onsearchvars={handleSearch}
             onnewcust={newAccountGetPB}></c-price-summary>
         </div>
-        <template if:true={foundPrice}>
+        <!-- <template if:true={foundPrice}>
             <div class="slds-col slds-size_1-of-2">
                 <p class="slds-text-heading_large">Price Book Name: {priceBookName}</p>
                 <p class="slds-text-heading_large">List Price: {listPrice}</p>
             </div>
+        </template> -->
+        <template if:true={foundProducts}>
+            <!-- <div class="slds-col slds-size_1-of-2">
+                <template for:each={fetchedData} for:item="x">
+                    <div key={x.Id}>
+                        <p>{x.name}</p>
+                        <p>{x.UnitPrice}</p>
+                        <p>{x.priceBook}</p>
+                    </div>
+                </template>
+            </div> -->
         </template>
-        <c-display-table take={fetchedData}></c-display-table>
     </div>
 </template>

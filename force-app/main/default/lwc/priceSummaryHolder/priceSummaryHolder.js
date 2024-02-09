@@ -7,6 +7,7 @@ export default class PriceSummaryHolder extends LightningElement {
     fetchedData = {};
     priceBookName;
     listPrice; 
+    foundProducts = false;
     async newAccountGetPB(event){
         //no double values and assign the standard price book up front; 
         let list = new Set(["01s410000077vSKAAY"])
@@ -19,8 +20,9 @@ export default class PriceSummaryHolder extends LightningElement {
             }
         }
         this.acctPriceBooks = [...list];
-        console.log(this.acctPriceBooks)
+        //console.log(this.acctPriceBooks)
     }
+    priceField; 
     foundPrice = false; 
     async handleSearch(ext){
         let prodId = ext.detail?.product2 ?? '';
@@ -28,18 +30,36 @@ export default class PriceSummaryHolder extends LightningElement {
         let limitAmount = ext.detail?.limitAmount ?? ''; 
         let orderBy = ext.detail?.orderBy ?? '';
         let primCat = ext.detail?.primCat ?? '';
-        let priceField = ext.detail?.priceField ?? 'error';
+        this.priceField = ext.detail?.priceField ?? 'error';
  
-        let apexOrderBy = orderBy != 'none'? ' ORDER BY '+priceField +' '+orderBy+'' : ' ORDER BY '+ priceField +' ASC';
+        let apexOrderBy = orderBy != 'none'? ' ORDER BY '+this.priceField +' '+orderBy+'' : ' ORDER BY '+ this.priceField +' ASC';
         
         
        
          
-        let back = await getBestPriceString({priceBooksAcc: this.acctPriceBooks, priceField: priceField, productId:prodId,orderBy:apexOrderBy  })
-
+        let back = await getBestPriceString({priceBooksAcc: this.acctPriceBooks, priceField: this.priceField, productId:prodId,orderBy:apexOrderBy  })
+        if(back){
+            this.fetchedData = back.map(x=>{
+    
+                return{
+                    Id: x.Id,
+                    name: x.Name,
+                    code: x.ProductCode,
+                    priceBook: x.Price_Book_Name__c,
+                    unitPrice: x.UnitPrice,
+                    cost: x.Product_Cost__c,
+                    floor: x.Floor_Price__c, 
+                    levelOne: x.Level_1_UserView__c,
+                    levelOneMar: x.Level_One_Margin__c,
+                    levelTwo: x.Level_2_UserView__c,
+                    levelTwo: x.Level_2_Margin__c
+                }
+            }); 
+            console.log(this.fetchedData)
+            this.foundProducts = true;   
+        }
         //this.fetchedData = {info: back};
-        this.fetchedData = priceField;  
-        console.log(this.fetchedData)
+        
         // if(prodId){
         //     let data = await getBestPrice({priceBookIds: this.acctPriceBooks, productId: prodId});
         //     this.priceBookName = data[0].Pricebook2.Name;

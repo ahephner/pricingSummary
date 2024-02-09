@@ -1,20 +1,23 @@
 <template>
-    <lightning-card icon-name="standard:account" variant="base">
-      <div slot="title">
-          Card Title
-      </div>
-      <div slot="actions">
-    
-      </div>
-      <div slot="footer">
-        {take}
-      </div>
+    <lightning-card variant="base">
+
       <div>
         <!-- Card Body  -->
-        <p>body</p>
-
-        {info}
-
+<p>take</p>{take} 
+       
+        <!-- <template for:each={prods} for:item="x">
+          <div key={x.Id}>
+              <p>{x.Product2.Name}</p>
+              <p>{x.Product2.UnitPrice}</p>
+          </div>
+        </template> -->
+      </div>
+      <div slot="footer">
+        <lightning-button 
+          variant="base"
+          label="Button Label" 
+          onclick={handleClick} 
+        ></lightning-button>
       </div>
     </lightning-card>
 </template>
