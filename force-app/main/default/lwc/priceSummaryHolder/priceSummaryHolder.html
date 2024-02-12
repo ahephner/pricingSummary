@@ -11,15 +11,69 @@
             </div>
         </template> -->
         <template if:true={foundProducts}>
-            <!-- <div class="slds-col slds-size_1-of-2">
-                <template for:each={fetchedData} for:item="x">
-                    <div key={x.Id}>
-                        <p>{x.name}</p>
-                        <p>{x.UnitPrice}</p>
-                        <p>{x.priceBook}</p>
-                    </div>
-                </template>
-            </div> -->
+            <div class="slds-col slds-m-left_small slds-size_1-of-2">
+                <div class="slds-scrollable_y " style="height:55rem;width:100%">
+
+                    <lightning-layout class="x-large" vertical-align="center" multiple-rows="true">
+                        <div>
+                            <span class="title">Price Book/Product</span>
+                            <span class="cost">Cost</span>
+                            <span class="list">List</span>
+                            <span class="floor">Floor</span>
+                            <span class="levelOne">Level 1</span>
+                            <span class="levelMargin">Margin</span>
+                            <span class="levelTwo">Level 2</span>
+                            <span class="levelTwoMargin">2 Margin</span>  
+                        </div>
+                        <template for:each={fetchedData} for:item="x">
+                            <lightning-layout-item key={x.Id} size="12">
+                                <div class="slds-grid inner">
+                                    <div class="slds-col slds-size_4-of-12 names">
+                                        <a href={x.bookURL} target="_blank">{x.priceBook}</a>
+                                        <a href={x.pbeURL} target="_blank">{x.name}</a>
+                                        <p class="codeClass" data-id={x.id} onclick={handleOpen}><i>{x.code}</i></p>
+                                    </div>
+                                    <div class="slds-col slds-size_1-of-12">
+                                        <lightning-input type="number" name={x.Id} readonly 
+                                        value={x.cost} formatter="currency" step="0.01"></lightning-input>
+                                    </div>
+                                    <div class="slds-col slds-size_1-of-12">
+                                        <lightning-input type="number" name={x.Id} read-only={x.readOnly} 
+                                        value={x.unitPrice} formatter="currency" step="0.01" ></lightning-input>
+                                        
+                                    </div>
+                                    <div class="slds-col slds-size_1-of-12">
+                                        <lightning-input type="number" name={x.Id} read-only={x.readOnly} 
+                                        value={x.floor} formatter="currency" step="0.01"></lightning-input>
+                                    </div>
+                                    <div class="slds-col slds-size_1-of-12">
+                                        <lightning-input type="number" name={x.Id} read-only={x.readOnly} 
+                                        value={x.levelOne} formatter="currency" step="0.01"></lightning-input>
+                                    </div>
+                                    <div class="slds-col slds-size_1-of-12">
+                                        <lightning-input type="number" name={x.Id} read-only={x.readOnly}
+                                        value={x.levelOneMar} formatter="percent" step="0.01"></lightning-input>
+                                    </div>
+                                    <div class="slds-col slds-size_1-of-12">
+                                        <lightning-input type="number" name={x.Id} read-only={x.readOnly} 
+                                        value={x.levelTwo} formatter="currency" step="0.01"></lightning-input>
+                                    </div>
+                                    <div class="slds-col slds-size_1-of-12">
+                                        <lightning-input type="number" name={x.Id} read-only={x.readOnly}
+                                         value={x.levelTwoMar} formatter="percent" step="0.01"></lightning-input>
+                                         <!-- <lightning-button-icon icon-name="utility:settings"  alternative-text="Settings" title="Settings"></lightning-button-icon> -->
+                                    </div>
+                                    <!-- <div class="slds-col slds-size_1-of-12">
+                                        <div class="slds-p-around_medium lgc-bg">
+
+                                        </div>
+                                    </div> -->
+                                </div>
+                            </lightning-layout-item>
+                        </template>
+                    </lightning-layout>
+                </div>
+            </div>
         </template>
     </div>
 </template>

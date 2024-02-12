@@ -1,6 +1,6 @@
 import { LightningElement } from 'lwc';
 import getPriceBooks from '@salesforce/apex/getPriceBooks.getPriceBookIds';
-import getBestPrice from '@salesforce/apex/getPriceBooks.getBestPrice';
+import getProductPrice from '@salesforce/apex/getPriceBooks.getProductPrice';
 import getBestPriceString from '@salesforce/apex/getPriceBooks.getBestPriceString';
 export default class PriceSummaryHolder extends LightningElement {
     acctPriceBooks = [];
@@ -34,37 +34,63 @@ export default class PriceSummaryHolder extends LightningElement {
  
         let apexOrderBy = orderBy != 'none'? ' ORDER BY '+this.priceField +' '+orderBy+'' : ' ORDER BY '+ this.priceField +' ASC';
         
+        if(accId != ''){
+            let back = await getBestPriceString({priceBooksAcc: this.acctPriceBooks, priceField: this.priceField, productId:prodId,orderBy:apexOrderBy  })
+            if(back){
+                this.fetchedData = back.map(x=>{
         
-       
-         
-        let back = await getBestPriceString({priceBooksAcc: this.acctPriceBooks, priceField: this.priceField, productId:prodId,orderBy:apexOrderBy  })
-        if(back){
-            this.fetchedData = back.map(x=>{
-    
-                return{
-                    Id: x.Id,
-                    name: x.Name,
-                    code: x.ProductCode,
-                    priceBook: x.Price_Book_Name__c,
-                    unitPrice: x.UnitPrice,
-                    cost: x.Product_Cost__c,
-                    floor: x.Floor_Price__c, 
-                    levelOne: x.Level_1_UserView__c,
-                    levelOneMar: x.Level_One_Margin__c,
-                    levelTwo: x.Level_2_UserView__c,
-                    levelTwo: x.Level_2_Margin__c
-                }
-            }); 
-            console.log(this.fetchedData)
-            this.foundProducts = true;   
+                    return{
+                        Id: x.Id,
+                        name: x.Product2.Name.substring(0,30)+ '...',
+                        code: x.ProductCode,
+                        priceBook: x.Price_Book_Name__c,
+                        unitPrice: x.UnitPrice,
+                        cost: x.Product_Cost__c,
+                        floor: x.Floor_Price__c, 
+                        levelOne: x.Level_1_UserView__c,
+                        levelOneMar: x.Level_One_Margin__c/100,
+                        levelTwo: x.Level_2_UserView__c,
+                        levelTwoMar: x.Level_2_Margin__c/100,
+                        readOnly: true,
+                        bookURL: `https://advancedturf--full.sandbox.lightning.force.com/lightning/r/Pricebook2/${x.Pricebook2Id}/view`,
+                        pbeURL:  `https://advancedturf--full.sandbox.lightning.force.com/lightning/r/PricebookEntry/${x.Id}/view`
+                    }
+                }); 
+                
+                this.foundProducts = true;   
+            }
+        }else if(accId === ''){
+            let back = await getProductPrice({productId:prodId, priceField: this.priceField, orderBy:apexOrderBy});
+            if(back){
+                this.fetchedData = back.map(x=>{
+        
+                    return{
+                        Id: x.Id,
+                        name: x.Product2.Name.substring(0,30)+ '...',
+                        code: x.ProductCode,
+                        priceBook: x.Price_Book_Name__c,
+                        unitPrice: x.UnitPrice,
+                        cost: x.Product_Cost__c,
+                        floor: x.Floor_Price__c, 
+                        levelOne: x.Level_1_UserView__c,
+                        levelOneMar: x.Level_One_Margin__c/100,
+                        levelTwo: x.Level_2_UserView__c,
+                        levelTwoMar: x.Level_2_Margin__c/100,
+                        readOnly: true,
+                        bookURL: `https://advancedturf--full.sandbox.lightning.force.com/lightning/r/Pricebook2/${x.Pricebook2Id}/view`,
+                        pbeURL:  `https://advancedturf--full.sandbox.lightning.force.com/lightning/r/PricebookEntry/${x.Id}/view`
+                    }
+                }); 
+                
+                this.foundProducts = true;   
+            }
         }
-        //this.fetchedData = {info: back};
-        
-        // if(prodId){
-        //     let data = await getBestPrice({priceBookIds: this.acctPriceBooks, productId: prodId});
-        //     this.priceBookName = data[0].Pricebook2.Name;
-        //     this.listPrice = `$${data[0].UnitPrice}`; 
-        //     this.foundPrice = data != undefined ? true : false; 
-        //  }
+
     }
+
+    handleOpen(evt){
+        let index = evt.target.name; 
+        this.fetchedData[index].readOnly = false; 
+    }
+
 }

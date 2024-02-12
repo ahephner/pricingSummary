@@ -1,23 +1,46 @@
 <template>
     <lightning-card variant="base">
-
-      <div>
-        <!-- Card Body  -->
-<p>take</p>{take} 
-       
-        <!-- <template for:each={prods} for:item="x">
-          <div key={x.Id}>
-              <p>{x.Product2.Name}</p>
-              <p>{x.Product2.UnitPrice}</p>
-          </div>
-        </template> -->
-      </div>
-      <div slot="footer">
-        <lightning-button 
-          variant="base"
-          label="Button Label" 
-          onclick={handleClick} 
-        ></lightning-button>
-      </div>
+      <table class="slds-table slds-table_cell-buffer slds-table_bordered" aria-label="Example default base table of Opportunities">
+        <thead>
+          <tr class="slds-line-height_reset">
+            <th class="" scope="col">
+              <div class="slds-truncate" title="Opportunity Name">Product Pricebook</div>
+            </th>
+            <th class="" scope="col">
+              <div class="slds-truncate" title="Account Name">Cost</div>
+            </th>
+            <th class="" scope="col">
+              <div class="slds-truncate" title="Close Date">List Price</div>
+            </th>
+            <th class="" scope="col">
+              <div class="slds-truncate" title="Stage">Floor</div>
+            </th>
+            <th class="" scope="col">
+              <div class="slds-truncate" title="Confidence">Level 1</div>
+            </th>
+            <th class="" scope="col">
+              <div class="slds-truncate" title="Amount">Margin</div>
+            </th>
+            <th class="" scope="col">
+              <div class="slds-truncate" title="Contact">Level 2</div>
+            </th>
+            <th class="" scope="col">
+              <div class="slds-truncate" title="Contact">Margin</div>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="slds-hint-parent">
+            <th data-label="Opportunity Name" scope="row">
+              <div class="slds-truncate" title="Cloudhub">
+                <a href="#" tabindex="-1">Cloudhub</a>
+              </div>
+            </th>
+            <td data-label="Account Name">
+              <div class="slds-truncate" title="Cloudhub">Cloudhub</div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </lightning-card>
 </template>

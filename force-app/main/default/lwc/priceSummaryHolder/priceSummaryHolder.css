@@ -1,0 +1,50 @@
+.inner{
+    border: 1px solid #d8dde6;
+}
+
+.header-column {
+    padding: 0 2rem;
+}
+
+.names{
+    display: grid;
+    font-weight: 500; 
+    margin-left: 1%
+}
+.codeClass{
+    font-size: smaller;
+}
+.title{
+    position: relative;
+    left: 15px; 
+}
+.cost{
+    position: relative;
+    left: 153px; 
+}
+.list{
+    position: relative;
+    left: 187px; 
+}
+.floor{
+    position: relative;
+    left: 227px;
+}
+
+.levelOne{
+    position: relative;
+    left: 258px;
+}
+
+.levelMargin{
+    position: relative;
+    left: 270px;
+}
+.levelTwo{
+    position: relative;
+    left:296px; 
+}
+.levelTwoMargin{
+    position: relative;
+    left:310px; 
+}
