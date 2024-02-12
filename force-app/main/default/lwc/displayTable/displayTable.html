@@ -1,6 +1,13 @@
 <template>
-    <lightning-card variant="base">
-      <table class="slds-table slds-table_cell-buffer slds-table_bordered" aria-label="Example default base table of Opportunities">
+  <lightning-button 
+    variant="base"
+    label="Button Label" 
+    onclick={handleClick} 
+  ></lightning-button>
+  <lightning-card variant="base">
+
+    
+      <table class="slds-table slds-table_cell-buffer slds-table_bordered table_striped" aria-label="Example default base table of Opportunities">
         <thead>
           <tr class="slds-line-height_reset">
             <th class="" scope="col">
@@ -21,26 +28,49 @@
             <th class="" scope="col">
               <div class="slds-truncate" title="Amount">Margin</div>
             </th>
-            <th class="" scope="col">
+            <!-- <th class="" scope="col">
               <div class="slds-truncate" title="Contact">Level 2</div>
             </th>
             <th class="" scope="col">
               <div class="slds-truncate" title="Contact">Margin</div>
-            </th>
+            </th> -->
           </tr>
         </thead>
-        <tbody>
-          <tr class="slds-hint-parent">
-            <th data-label="Opportunity Name" scope="row">
-              <div class="slds-truncate" title="Cloudhub">
-                <a href="#" tabindex="-1">Cloudhub</a>
-              </div>
-            </th>
-            <td data-label="Account Name">
-              <div class="slds-truncate" title="Cloudhub">Cloudhub</div>
-            </td>
-          </tr>
-        </tbody>
+
+          <template if:true={foundProducts}>
+            <template  for:each={fetchedData} for:item="x" for:index="index">
+               
+              <tr class="slds-hint-parent" key={x.Id}>
+                <th data-label="Opportunity Name" scope="row">
+                  <div class="slds-truncate names" title="Cloudhub">
+                    <a href={x.bookURL} target="_blank" tabindex="-1" class="slds-m-bottom_x-small">{x.priceBook}</a>
+                      <a href={x.pbeURL} target="_blank" tabindex="-1">{x.name}</a>
+                    </div>
+                </th>
+                <td data-label="Account Name">
+                  <div class="slds-truncate" title="Cloudhub">{x.cost}</div>
+                </td>
+                <td data-label="Account Name">
+                  <div class="slds-truncate" title="Cloudhub">{x.unitPrice}</div>
+                </td>
+                <td data-label="Account Name">
+                  <div class="slds-truncate" title="Cloudhub">{x.floor}</div>
+                </td>
+                <td data-label="Account Name">
+                  <div class="slds-truncate" title="Cloudhub">{x.levelOne}</div>
+                </td>
+                <td data-label="Account Name">
+                  <div class="slds-truncate" title="Cloudhub">{x.levelOneMar}</div>
+                </td>
+              </tr>
+            </template>
+          </template>
+          <template if:false={foundProducts}>
+            <div class="exampleHolder">
+              <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+          </div>
+          </template>
+
       </table>
     </lightning-card>
 </template>

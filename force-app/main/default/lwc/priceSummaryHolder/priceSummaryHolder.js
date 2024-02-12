@@ -1,12 +1,19 @@
-import { LightningElement } from 'lwc';
+import { LightningElement, track } from 'lwc';
 import getPriceBooks from '@salesforce/apex/getPriceBooks.getPriceBookIds';
-import getProductPrice from '@salesforce/apex/getPriceBooks.getProductPrice';
-import getBestPriceString from '@salesforce/apex/getPriceBooks.getBestPriceString';
+
 export default class PriceSummaryHolder extends LightningElement {
     acctPriceBooks = [];
-    fetchedData = {};
     priceBookName;
     listPrice; 
+    @track childProps = {
+        productId: '',
+        accountId: '',
+        limitedSearchRes: '',
+        orderSearchBy: '',
+        primaryCat: '',
+        priceSearchField: '',
+        apexOrderBy: ''
+    };
     foundProducts = false;
     async newAccountGetPB(event){
         //no double values and assign the standard price book up front; 
@@ -24,70 +31,34 @@ export default class PriceSummaryHolder extends LightningElement {
     }
     priceField; 
     foundPrice = false; 
-    async handleSearch(ext){
-        let prodId = ext.detail?.product2 ?? '';
-        let accId = ext.detail?.accId ?? '';
-        let limitAmount = ext.detail?.limitAmount ?? ''; 
+    async handleSearch(ext){       
         let orderBy = ext.detail?.orderBy ?? '';
-        let primCat = ext.detail?.primCat ?? '';
         this.priceField = ext.detail?.priceField ?? 'error';
  
         let apexOrderBy = orderBy != 'none'? ' ORDER BY '+this.priceField +' '+orderBy+'' : ' ORDER BY '+ this.priceField +' ASC';
         
-        if(accId != ''){
-            let back = await getBestPriceString({priceBooksAcc: this.acctPriceBooks, priceField: this.priceField, productId:prodId,orderBy:apexOrderBy  })
-            if(back){
-                this.fetchedData = back.map(x=>{
+        this.childProps = await {...this.childProps, 
+                            productId: ext.detail?.product2 ?? '',
+                            accountId: ext.detail?.accId ?? '',
+                            limitedSearchRes: ext.detail?.limitAmount ?? '',
+                            orderSearchBy: ext.detail?.orderBy ?? '',
+                            primaryCat: ext.detail?.primCat ?? '',
+                            priceSearchField: ext.detail?.priceField ?? 'error',
+                            apexOrderBy: apexOrderBy
+                        }
+        let to = await this.letSpreadBreath();
+        console.log(to)          
+        //load products in table
+        this.template.querySelector("c-display-table").loadProds();
         
-                    return{
-                        Id: x.Id,
-                        name: x.Product2.Name.substring(0,30)+ '...',
-                        code: x.ProductCode,
-                        priceBook: x.Price_Book_Name__c,
-                        unitPrice: x.UnitPrice,
-                        cost: x.Product_Cost__c,
-                        floor: x.Floor_Price__c, 
-                        levelOne: x.Level_1_UserView__c,
-                        levelOneMar: x.Level_One_Margin__c/100,
-                        levelTwo: x.Level_2_UserView__c,
-                        levelTwoMar: x.Level_2_Margin__c/100,
-                        readOnly: true,
-                        bookURL: `https://advancedturf--full.sandbox.lightning.force.com/lightning/r/Pricebook2/${x.Pricebook2Id}/view`,
-                        pbeURL:  `https://advancedturf--full.sandbox.lightning.force.com/lightning/r/PricebookEntry/${x.Id}/view`
-                    }
-                }); 
-                
-                this.foundProducts = true;   
-            }
-        }else if(accId === ''){
-            let back = await getProductPrice({productId:prodId, priceField: this.priceField, orderBy:apexOrderBy});
-            if(back){
-                this.fetchedData = back.map(x=>{
-        
-                    return{
-                        Id: x.Id,
-                        name: x.Product2.Name.substring(0,30)+ '...',
-                        code: x.ProductCode,
-                        priceBook: x.Price_Book_Name__c,
-                        unitPrice: x.UnitPrice,
-                        cost: x.Product_Cost__c,
-                        floor: x.Floor_Price__c, 
-                        levelOne: x.Level_1_UserView__c,
-                        levelOneMar: x.Level_One_Margin__c/100,
-                        levelTwo: x.Level_2_UserView__c,
-                        levelTwoMar: x.Level_2_Margin__c/100,
-                        readOnly: true,
-                        bookURL: `https://advancedturf--full.sandbox.lightning.force.com/lightning/r/Pricebook2/${x.Pricebook2Id}/view`,
-                        pbeURL:  `https://advancedturf--full.sandbox.lightning.force.com/lightning/r/PricebookEntry/${x.Id}/view`
-                    }
-                }); 
-                
-                this.foundProducts = true;   
-            }
-        }
-
     }
-
+     letSpreadBreath() {
+        return new Promise((resolve) => {
+          setTimeout(() => {
+            resolve('resolved');
+          }, 500);
+        });
+      }
     handleOpen(evt){
         let index = evt.target.name; 
         this.fetchedData[index].readOnly = false; 
