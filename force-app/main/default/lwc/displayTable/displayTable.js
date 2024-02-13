@@ -1,4 +1,4 @@
-import { LightningElement,api } from 'lwc';
+import { LightningElement,api, track } from 'lwc';
 import getProductPrice from '@salesforce/apex/getPriceBooks.getProductPrice';
 import getBestPriceString from '@salesforce/apex/getPriceBooks.getBestPriceString';
 export default class DisplayTable extends LightningElement {
@@ -12,9 +12,13 @@ export default class DisplayTable extends LightningElement {
     @api apexOrderBy
     @api accountpricebooks
     foundProducts = true; 
+    @track fetchedData = []; 
+    @api iAmSpinning(){
+        this.foundProducts = false; 
+    }
     //get product info 
     @api loadProds(){
-        this.foundProducts = false; 
+         
         if(this.accountId != ''){
             getBestPriceString({priceBooksAcc: this.accountpricebooks, priceField: this.priceSearchField, productId:this.productId, orderBy:this.apexOrderBy  })
                 .then((res)=>{
@@ -72,11 +76,9 @@ export default class DisplayTable extends LightningElement {
  
     }
     // products
-   handleClick(){
-    console.log(1,this.prods)
-    for(let i=0; i<this.prods.lenght; i++){
-        this.prods[i].readOnly = false; 
-    }
-    console.log(2,this.prods)
+    editOne(evt){
+        let index = this.fetchedData.findIndex(x => x.Id === evt.target.name);
+        console.log(index)
+        this.fetchedData[index].readOnly = false; 
    }
 }

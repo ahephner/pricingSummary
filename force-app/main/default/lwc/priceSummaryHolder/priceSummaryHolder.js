@@ -29,12 +29,16 @@ export default class PriceSummaryHolder extends LightningElement {
         this.acctPriceBooks = [...list];
         //console.log(this.acctPriceBooks)
     }
+    //this function recieves and transmits the search prompts here
+    //the reason for the timeout is that the lwc:spread function has not native async when built 2/12/24 or at least this dev was unaware. 
+    //so we force a quick timeout to allow the prompts to properly pass down the stack. before we do that we call a child function iAmSpinning to start the spinner on the datatable
+    //to prevent double clicks. 
     priceField; 
     foundPrice = false; 
     async handleSearch(ext){       
         let orderBy = ext.detail?.orderBy ?? '';
         this.priceField = ext.detail?.priceField ?? 'error';
- 
+ //pass the order by to apex. This tells it to show me best deal or not
         let apexOrderBy = orderBy != 'none'? ' ORDER BY '+this.priceField +' '+orderBy+'' : ' ORDER BY '+ this.priceField +' ASC';
         
         this.childProps = await {...this.childProps, 
@@ -46,8 +50,9 @@ export default class PriceSummaryHolder extends LightningElement {
                             priceSearchField: ext.detail?.priceField ?? 'error',
                             apexOrderBy: apexOrderBy
                         }
+        this.template.querySelector("c-display-table").iAmSpinning();
         let to = await this.letSpreadBreath();
-        console.log(to)          
+                 
         //load products in table
         this.template.querySelector("c-display-table").loadProds();
         

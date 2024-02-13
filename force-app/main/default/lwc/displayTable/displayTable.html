@@ -1,13 +1,13 @@
 <template>
-  <lightning-button 
+  <!-- <lightning-button 
     variant="base"
     label="Button Label" 
     onclick={handleClick} 
-  ></lightning-button>
-  <lightning-card variant="base">
+  ></lightning-button> -->
+  <!-- <lightning-card variant="base">
 
     
-      <table class="slds-table slds-table_cell-buffer slds-table_bordered table_striped" aria-label="Example default base table of Opportunities">
+      <table class="slds-table slds-table_cell-buffer slds-table_bordered slds-table_striped" aria-label="Example default base table of Opportunities">
         <thead>
           <tr class="slds-line-height_reset">
             <th class="" scope="col">
@@ -28,12 +28,12 @@
             <th class="" scope="col">
               <div class="slds-truncate" title="Amount">Margin</div>
             </th>
-            <!-- <th class="" scope="col">
+            <th class="" scope="col">
               <div class="slds-truncate" title="Contact">Level 2</div>
             </th>
             <th class="" scope="col">
               <div class="slds-truncate" title="Contact">Margin</div>
-            </th> -->
+            </th>
           </tr>
         </thead>
 
@@ -42,6 +42,7 @@
                
               <tr class="slds-hint-parent" key={x.Id}>
                 <th data-label="Opportunity Name" scope="row">
+                  
                   <div class="slds-truncate names" title="Cloudhub">
                     <a href={x.bookURL} target="_blank" tabindex="-1" class="slds-m-bottom_x-small">{x.priceBook}</a>
                       <a href={x.pbeURL} target="_blank" tabindex="-1">{x.name}</a>
@@ -72,5 +73,94 @@
           </template>
 
       </table>
-    </lightning-card>
+    </lightning-card> -->
+
+    <table class="slds-table slds-table_cell-buffer slds-table_bordered slds-table_striped" aria-label="Example table of Opportunities with striped rows">
+      <thead>
+      <tr class="slds-line-height_reset">
+      <th class="" scope="col">
+      <div class="slds-truncate" title="Opportunity Name">Pricebook - Entry</div>
+      </th>
+      <th class="" scope="col">
+      <div class="slds-truncate" title="Account Name">Cost</div>
+      </th>
+      <th class="" scope="col">
+      <div class="slds-truncate" title="Close Date">Unit Price</div>
+      </th>
+      <th class="" scope="col">
+      <div class="slds-truncate" title="Stage">Floor</div>
+      </th>
+      <th class="" scope="col">
+      <div class="slds-truncate" title="Confidence">Level One</div>
+      </th>
+      <th class="" scope="col">
+      <div class="slds-truncate" title="Amount">Margin</div>
+      </th>
+      <th class="" scope="col">
+      <div class="slds-truncate" title="Button"></div>
+      </th>
+      </tr>
+      </thead>
+      <tbody>
+        <template if:false={foundProducts}>
+          <div class="exampleHolder">
+            <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+        </div>
+        </template>
+        <template if:true={foundProducts}>
+          <template  for:each={fetchedData} for:item="x" for:index="index">
+
+      <tr class="slds-hint-parent" key={x.Id}>
+      <th data-label="Opportunity Name" scope="row">
+      <div class="slds-truncate names" title="Cloudhub">
+        <a href={x.bookURL} target="_blank" tabindex="-1" class="slds-m-bottom_x-small">{x.priceBook}</a>
+        <a href={x.pbeURL} target="_blank" tabindex="-1">{x.name}</a>
+      </div>
+      </th>
+      <td data-label="Account Name">
+      <div class="slds-truncate" title="Cost">
+        <lightning-input type="number" name={x.Id} readonly 
+                                        value={x.cost} formatter="currency" step="0.01"></lightning-input>
+      </div>
+      </td>
+      <td data-label="Close Date">
+      <div class="slds-truncate" title="List Price">
+        <lightning-input type="number" name={x.Id} read-only={x.readOnly} 
+                                        value={x.unitPrice} formatter="currency" step="0.01" ></lightning-input>
+      </div>
+      </td>
+      <td data-label="Prospecting">
+      <div class="slds-truncate" title="Floor">
+        <lightning-input type="number" name={x.Id} read-only={x.readOnly} 
+                                        value={x.floor} formatter="currency" step="0.01"></lightning-input>
+      </div>
+      </td>
+      <td data-label="Confidence">
+      <div class="slds-truncate" title="Level One">
+        <lightning-input type="number" name={x.Id} read-only={x.readOnly} 
+                                        value={x.levelOne} formatter="currency" step="0.01"></lightning-input>
+      </div>
+      </td>
+      <td data-label="Amount">
+      <div class="slds-truncate" title="Margin">
+        <lightning-input type="number" name={x.Id} read-only={x.readOnly}
+                                        value={x.levelOneMar} formatter="percent" step="0.01"></lightning-input>
+      </div>
+      </td>
+      <td data-label="Contact">
+      <div class="slds-truncate" title="jrogers@cloudhub.com">
+       <lightning-button 
+         variant="brand"
+         label="Edit" 
+         name={x.Id}
+         onclick={editOne} 
+       ></lightning-button>
+      </div>
+      </td>
+      </tr>
+      
+    </template>
+  </template>
+      </tbody>
+      </table>
 </template>

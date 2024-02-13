@@ -1,6 +1,6 @@
 <template>
     <div class="slds-grid">
-        <div class="slds-col slds-size_1-of-2">
+        <div class="slds-col slds-size_1-of-3">
             <c-price-summary onsearchvars={handleSearch}
             onnewcust={newAccountGetPB}></c-price-summary>
         </div>
@@ -10,7 +10,7 @@
                 <p class="slds-text-heading_large">List Price: {listPrice}</p>
             </div>
         </template> -->
-        <div class="slds-col slds-size_1-of-2">
+        <div class="slds-col slds-size_2-of-3">
             <c-display-table lwc:spread={childProps}
                              accountpricebooks={acctPriceBooks}>
             </c-display-table>
