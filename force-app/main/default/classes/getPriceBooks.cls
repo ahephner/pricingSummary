@@ -28,17 +28,42 @@ public with sharing class getPriceBooks {
         return bestPrice; 
     }
     
-        @auraEnabled(cacheable=true)
+        @auraEnabled
     public static list<pricebookentry> getBestPriceString(list<string> priceBooksAcc, string priceField, string productId, string orderBy){
         list<string> pb = priceBooksAcc; 
-        string find = 'select '+ priceField+', Pricebook2.Name, Pricebook2.IsStandard from PricebookEntry'
+        string find = 'select Floor_Price__c, Level_One_Margin__c, Level_1_UserView__c, Level_2_Margin__c, Level_2_UserView__c,Product2.Name, Product2.ProductCode, ' 
+           + 'Pricebook2Id, UnitPrice, Product_Cost__c, Price_Book_Name__c,Name, Pricebook2.IsStandard,ProductCode, Floor_Margin__c,' 
+            +' Min_Margin__c from PricebookEntry'
         + ' where IsActive = true and Pricebook2Id IN (\''+String.join(priceBooksAcc,'\',\'')+'\') and  Product2ID=\''+ productId+ '\''; 
         find += orderBy;     
         //if(limitor> 0){
           //  find += 'limit '+= limitor
         //}
-system.debug(find); 
+	system.debug(find); 
         list<pricebookentry> bestPrice = Database.query(find);
         return bestPrice; 
+    }
+    //get product price; 
+   @auraEnabled
+    public static list<pricebookentry> getProductPrice(string productId, string priceField,  string orderBy){
+     
+        string find = 'select Floor_Price__c, Level_One_Margin__c, Level_1_UserView__c, Level_2_Margin__c, Level_2_UserView__c,Product2.Name, Product2.ProductCode, ' 
+           + 'Pricebook2Id, UnitPrice, Product_Cost__c, Price_Book_Name__c,Name, Pricebook2.IsStandard,ProductCode,'
+           + 'Floor_Margin__c, Min_Margin__c from PricebookEntry'
+        + ' where IsActive = true and Product2ID=\''+ productId+ '\''; 
+        find += orderBy;     
+        system.debug(find); 
+        //if(limitor> 0){
+          //  find += 'limit '+= limitor
+        //}
+
+        list<pricebookentry> bestPrice = Database.query(find);
+        return bestPrice; 
+    }
+    @auraEnabled
+    public static string savePBE(list<pricebookentry> entries){
+        system.debug(entries);
+        update entries; 
+        return 'success'; 
     }
 }
