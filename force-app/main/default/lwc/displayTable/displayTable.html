@@ -74,7 +74,9 @@
 
       </table>
     </lightning-card> -->
-
+    <lightning-card>
+    
+    <div class="slds-scrollable_y" style="height:350px; min-height:350px;">
     <table class="slds-table slds-table_cell-buffer slds-table_bordered slds-table_striped" aria-label="Example table of Opportunities with striped rows">
       <thead>
       <tr class="slds-line-height_reset">
@@ -91,10 +93,10 @@
       <div class="slds-truncate" title="Stage">Floor</div>
       </th>
       <th class="" scope="col">
-      <div class="slds-truncate" title="Confidence">Level One</div>
+      <div class="slds-truncate" title="Confidence">Floor Margin</div>
       </th>
       <th class="" scope="col">
-      <div class="slds-truncate" title="Amount">Margin</div>
+      <div class="slds-truncate" title="Amount">Min Margin</div>
       </th>
       <th class="" scope="col">
       <div class="slds-truncate" title="Button"></div>
@@ -120,38 +122,38 @@
       <td data-label="Account Name">
       <div class="slds-truncate" title="Cost">
         <lightning-input type="number" name={x.Id} readonly 
-                                        value={x.cost} formatter="currency" step="0.01"></lightning-input>
+                                        value={x.Product_Cost__c} formatter="currency" step="0.01"></lightning-input>
       </div>
       </td>
       <td data-label="Close Date">
       <div class="slds-truncate" title="List Price">
-        <lightning-input type="number" name={x.Id} read-only={x.readOnly} 
-                                        value={x.unitPrice} formatter="currency" step="0.01" ></lightning-input>
+        <lightning-input type="number" name={x.Id} read-only={x.readOnly} onchange={handleUnitPrice}
+                                        value={x.UnitPrice} formatter="currency" step="0.01" ></lightning-input>
       </div>
       </td>
-      <td data-label="Prospecting">
+      <td data-label="Floor">
       <div class="slds-truncate" title="Floor">
-        <lightning-input type="number" name={x.Id} read-only={x.readOnly} 
-                                        value={x.floor} formatter="currency" step="0.01"></lightning-input>
+        <lightning-input type="number" name={x.Id} read-only={x.readOnly} onchange={handleFloor} 
+                                        value={x.Floor_Price__c} formatter="currency" step="0.01"></lightning-input>
       </div>
       </td>
-      <td data-label="Confidence">
+      <td data-label="floorMargin">
       <div class="slds-truncate" title="Level One">
-        <lightning-input type="number" name={x.Id} read-only={x.readOnly} 
-                                        value={x.levelOne} formatter="currency" step="0.01"></lightning-input>
+        <lightning-input type="number" name={x.Id} read-only={x.readOnly} onchange={handleFloorMargin}
+                                        value={x.Floor_Margin__c} formatter="percent" step="0.01"></lightning-input>
       </div>
       </td>
-      <td data-label="Amount">
+      <td data-label="levOneMargin">
       <div class="slds-truncate" title="Margin">
-        <lightning-input type="number" name={x.Id} read-only={x.readOnly}
-                                        value={x.levelOneMar} formatter="percent" step="0.01"></lightning-input>
+        <lightning-input type="number" name={x.Id} read-only={x.readOnly} onchange={handleMinMargin}
+                                        value={x.Min_Margin__c} formatter="percent" step="0.01"></lightning-input>
       </div>
       </td>
       <td data-label="Contact">
-      <div class="slds-truncate" title="jrogers@cloudhub.com">
+      <div class="slds-truncate" title="btn">
        <lightning-button 
-         variant="brand"
-         label="Edit" 
+         variant={x.btnBrand}
+         label={x.btnText} 
          name={x.Id}
          onclick={editOne} 
        ></lightning-button>
@@ -162,5 +164,24 @@
     </template>
   </template>
       </tbody>
-      </table>
+    </table>
+  </div>
+  
+  <div>
+      <template if:true={showFooter}>
+      <lightning-button-group class="slds-align_absolute-center slds-m-top_x-small">
+        <lightning-button label="Apply All" variant="base" onclick={applyAll}></lightning-button>
+        <!-- <lightning-button label="Save"></lightning-button> -->
+      </lightning-button-group>
+      <lightning-button-group class="slds-float_right">
+        <!-- <lightning-button label="Refresh"></lightning-button> -->
+        <lightning-button label={editAllBTN} 
+                          variant="destructive"
+                          onclick={editAll}></lightning-button>
+
+        <lightning-button label="Save" variant="brand" onclick={save}></lightning-button>
+      </lightning-button-group>
+    </template>
+    </div>
+  </lightning-card>
 </template>
