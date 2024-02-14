@@ -75,7 +75,12 @@
       </table>
     </lightning-card> -->
     <lightning-card>
-    
+      <div class="maintain">
+        <lightning-input data-id="toggle" type="toggle" 
+        label='Maintain Floors' checked={enforceFloor} onchange={handleEnforce}
+        message-toggle-active="" message-toggle-inactive=""></lightning-input>
+        <lightning-helptext content="If checked and Unit Price is changed the floor price will reflect Floor Margin to Unit Price"></lightning-helptext>
+      </div>
     <div class="slds-scrollable_y" style="height:350px; min-height:350px;">
     <table class="slds-table slds-table_cell-buffer slds-table_bordered slds-table_striped" aria-label="Example table of Opportunities with striped rows">
       <thead>
@@ -140,23 +145,25 @@
       <td data-label="floorMargin">
       <div class="slds-truncate" title="Level One">
         <lightning-input type="number" name={x.Id} read-only={x.readOnly} onchange={handleFloorMargin}
-                                        value={x.Floor_Margin__c} formatter="percent" step="0.01"></lightning-input>
+                                        value={x.Floor_Margin__c}  step="0.01"></lightning-input>
       </div>
       </td>
       <td data-label="levOneMargin">
       <div class="slds-truncate" title="Margin">
         <lightning-input type="number" name={x.Id} read-only={x.readOnly} onchange={handleMinMargin}
-                                        value={x.Min_Margin__c} formatter="percent" step="0.01"></lightning-input>
+                                        value={x.Min_Margin__c}  step="0.01"></lightning-input>
       </div>
       </td>
-      <td data-label="Contact">
+      <td data-label="Edit Button">
       <div class="slds-truncate" title="btn">
-       <lightning-button 
-         variant={x.btnBrand}
-         label={x.btnText} 
-         name={x.Id}
-         onclick={editOne} 
-       ></lightning-button>
+       <template if:true={x.canEdit}>
+         <lightning-button 
+          variant={x.btnBrand}
+          label={x.btnText} 
+          name={x.Id}
+          onclick={editOne} 
+        ></lightning-button>
+       </template>
       </div>
       </td>
       </tr>
@@ -169,18 +176,25 @@
   
   <div>
       <template if:true={showFooter}>
-      <lightning-button-group class="slds-align_absolute-center slds-m-top_x-small">
-        <lightning-button label="Apply All" variant="base" onclick={applyAll}></lightning-button>
-        <!-- <lightning-button label="Save"></lightning-button> -->
-      </lightning-button-group>
-      <lightning-button-group class="slds-float_right">
-        <!-- <lightning-button label="Refresh"></lightning-button> -->
-        <lightning-button label={editAllBTN} 
-                          variant="destructive"
-                          onclick={editAll}></lightning-button>
+        <div class="slds-grid">
+          <div class="slds-col slds-size_1-of-2">
+            <lightning-button-group class="slds-float_right slds-m-top_x-small">
+              <lightning-button label="Apply All" variant="brand" onclick={applyAll}></lightning-button>
+              <!-- <lightning-button label="Save"></lightning-button> -->
+            </lightning-button-group>
+          </div>
+          <div class="slds-col slds-size_1-of-2">
+            <lightning-button-group class="slds-float_right slds-m-top_x-small">
+              <!-- <lightning-button label="Refresh"></lightning-button> -->
+              <lightning-button label={editAllBTN} 
+                                variant="destructive"
+                                onclick={editAll}></lightning-button>
+      
+              <lightning-button label="Save" variant="brand" onclick={save}></lightning-button>
+            </lightning-button-group>
+          </div>
 
-        <lightning-button label="Save" variant="brand" onclick={save}></lightning-button>
-      </lightning-button-group>
+        </div>
     </template>
     </div>
   </lightning-card>

@@ -8,3 +8,7 @@
 .names{
     display: grid;
 }
+
+.maintain{
+    display: flex;
+}
