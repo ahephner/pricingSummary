@@ -5,6 +5,7 @@ import savePBE from '@salesforce/apex/getPriceBooks.savePBE';
 import { updateRecord } from 'lightning/uiRecordApi';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import {roundNum} from 'c/programBuilderHelper';
+import ApplyAllModal from 'c/applyAllModal';
 export default class DisplayTable extends LightningElement {
      prods; 
     @api productId;
@@ -18,11 +19,14 @@ export default class DisplayTable extends LightningElement {
     foundProducts = true;
     showFooter = false;  
     enforceFloor = false;
+    averageUnitPrice = 0; 
+    averageMarginUp = 0;
     @track fetchedData = []; 
     @api iAmSpinning(){
         this.foundProducts = false; 
     }
     //get product info 
+    //send averages back home
     @api loadProds(){
          
         if(this.accountId != ''){
@@ -56,7 +60,7 @@ export default class DisplayTable extends LightningElement {
                                 pbeURL:  `https://advancedturf--full.sandbox.lightning.force.com/lightning/r/PricebookEntry/${x.Id}/view`
                             }
                         }); 
-                        console.log('db ', dataBack)
+            
                         this.fetchedData = [...dataBack];
                     }
                 })
@@ -92,6 +96,21 @@ export default class DisplayTable extends LightningElement {
                     }); 
                     this.fetchedData = [...dataBack]; 
                        
+                }).then((x)=>{
+                    this.averageUnitPrice = roundNum(this.getAverage(this.fetchedData),2);
+                    //cost shuold be same across board 
+                    //price can be anything here using average
+                    //returnDecimalBoolean true/false do you want full number or dec.  
+                    this.averageMarginUp = roundNum(this.marginCalc(this.fetchedData[0].Product_Cost__c, this.averageUnitPrice, false),3)
+                    
+                    const averages = new CustomEvent('newaverage',{
+                        detail:{
+                            unitprice: this.averageUnitPrice,
+                            margins: this.averageMarginUp
+                        }
+                    })
+
+                    this.dispatchEvent(averages); 
                 })
         }
      
@@ -255,7 +274,27 @@ export default class DisplayTable extends LightningElement {
 
    }
 
-   applyAll(){
-    alert('not wired to anything yet!')
+   async applyAll(){
+    const result = await ApplyAllModal.open({
+        size: 'medium',
+        description: 'Accessible description of modal\'s purpose',
+        content: 'Passed into content api',
+    })
+      console.log(result)  
+   }
+
+   //math functions; 
+   getAverage(arr){
+    let numb = arr.reduce((total, next)=> total + next.UnitPrice,0)/arr.length;
+    return numb; 
+   }
+
+   marginCalc(cost, price, returnDecimalBoolean){
+    let margin = (price - cost)/price;
+    if(returnDecimalBoolean){
+        return margin
+    }else{
+        return (margin * 100); 
+    }
    }
 }

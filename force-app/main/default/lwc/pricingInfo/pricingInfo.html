@@ -1,0 +1,28 @@
+<template>
+    <div class="slds-grid">
+        <div class="slds-col slds-size_1-of-2">
+            <lightning-card >
+              <div slot="title">
+                  Average Unit Price
+              </div>
+
+              <div class="numbs">
+                <!-- Card Body  -->
+                ${unitPrice}
+              </div>
+            </lightning-card>
+        </div>
+        <div class="slds-col slds-size_1-of-2">
+            <lightning-card >
+                <div slot="title">
+                    Average Unit Margin
+                </div>
+  
+                <div class="numbs"> 
+                  <!-- Card Body  -->
+                  {margin}%
+                </div>
+              </lightning-card>
+        </div>
+    </div>
+</template>

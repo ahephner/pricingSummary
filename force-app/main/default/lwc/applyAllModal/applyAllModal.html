@@ -1,0 +1,39 @@
+<template>
+    <lightning-modal-header label="Mass Update Price Lists"></lightning-modal-header>
+    <lightning-modal-body>
+        <div class="slds-grid modalBody">
+            <div class="slds-col slds-size_1-of-3">
+                <lightning-combobox
+                  name="progress"
+                  label="Value to Change"
+                  value={value}
+                  options={options}
+                  onchange={handleChange} 
+                ></lightning-combobox>
+            
+                <template if:true={showPercentIncrease}>
+                <lightning-combobox
+                  name="increase"
+                  label="Increase or Decrease"
+                  value={upDown}
+                  options={twoOptions}
+                  onchange={handlePercentChange} 
+                ></lightning-combobox>
+            </template>
+
+                <lightning-input 
+                  type="number"
+                  label="Value to increase"
+                  value={numberInput}
+                  onchange={handleNumber}
+                ></lightning-input>
+            </div>
+            <div class="slds-col slds-size_2-of-3">
+             
+            </div>
+        </div>
+    </lightning-modal-body>
+    <lightning-modal-footer>
+        <lightning-button label="OK" onclick={handleOk}></lightning-button>
+    </lightning-modal-footer>
+</template>

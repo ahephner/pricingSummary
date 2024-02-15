@@ -95,6 +95,10 @@ export default class PriceSummary extends LightningElement {
 
     handleProduct(mess){
         this.product2Id = mess.detail; 
+
+        // if(hideFilter){
+        //     this.handleSearch()
+        // }
     }
     handleAccount(mess){
         this.accountId = mess.detail; 

@@ -14,6 +14,11 @@ export default class PriceSummaryHolder extends LightningElement {
         priceSearchField: '',
         apexOrderBy: ''
     };
+    @track avgProps = {
+        unitPrice: '',
+        margin: '',
+        prodId: ''
+    }
     foundProducts = false;
     async newAccountGetPB(event){
         //no double values and assign the standard price book up front; 
@@ -35,14 +40,16 @@ export default class PriceSummaryHolder extends LightningElement {
     //to prevent double clicks. 
     priceField; 
     foundPrice = false; 
+    productId; 
     async handleSearch(ext){       
         let orderBy = ext.detail?.orderBy ?? '';
         this.priceField = ext.detail?.priceField ?? 'error';
- //pass the order by to apex. This tells it to show me best deal or not
+        this.productId = ext.detail?.product2 ?? '';
+        //pass the order by to apex. This tells it to show me best deal or not
         let apexOrderBy = orderBy != 'none'? ' ORDER BY '+this.priceField +' '+orderBy+'' : ' ORDER BY '+ this.priceField +' ASC';
         
         this.childProps = await {...this.childProps, 
-                            productId: ext.detail?.product2 ?? '',
+                            productId: this.productId,
                             accountId: ext.detail?.accId ?? '',
                             limitedSearchRes: ext.detail?.limitAmount ?? '',
                             orderSearchBy: ext.detail?.orderBy ?? '',
@@ -68,5 +75,13 @@ export default class PriceSummaryHolder extends LightningElement {
         let index = evt.target.name; 
         this.fetchedData[index].readOnly = false; 
     }
-
+    showInfo = false; 
+    handleAverages(evt){
+        this.showInfo = true; 
+        this.avgProps = {
+            unitPrice: evt.detail?.unitprice ?? 'not found',
+            margin: evt.detail?.margins ?? 'not found',
+            prodId: this.productId
+        }
+    }
 }
