@@ -1,39 +1,64 @@
 <template>
     <lightning-modal-header label="Mass Update Price Lists"></lightning-modal-header>
+    <template if:true={gatherScreen}>
     <lightning-modal-body>
-        <div class="slds-grid modalBody">
-            <div class="slds-col slds-size_1-of-3">
-                <lightning-combobox
-                  name="progress"
-                  label="Value to Change"
-                  value={value}
-                  options={options}
-                  onchange={handleChange} 
-                ></lightning-combobox>
-            
-                <template if:true={showPercentIncrease}>
-                <lightning-combobox
-                  name="increase"
-                  label="Increase or Decrease"
-                  value={upDown}
-                  options={twoOptions}
-                  onchange={handlePercentChange} 
-                ></lightning-combobox>
-            </template>
 
-                <lightning-input 
-                  type="number"
-                  label="Value to increase"
-                  value={numberInput}
-                  onchange={handleNumber}
-                ></lightning-input>
+            <div class="slds-grid modalBody">
+                <div class="slds-col slds-size_1-of-5">
+                    <lightning-combobox
+                    name="progress"
+                    label="Value to Change"
+                    value={value}
+                    options={options}
+                    onchange={handleChange} 
+                    ></lightning-combobox>
+                    
+                    <template if:true={showNumbInput}>
+                        <lightning-input 
+                        type="number"
+                        label={fieldLabel}
+                        value={numberInput}
+                        onchange={handleNumber}
+                        ></lightning-input>
+                    </template>
+                </div>
+                
+                <div class="slds-col slds-size_2-of-5 lineUp">
+                    <template if:true={showPercentIncrease}>
+                        <lightning-helptext content="Direct will be the number you put in. % will let you set value based off current floor or Unit Price"></lightning-helptext>
+                        <lightning-combobox
+                        name="increase"
+                        label="Type of change"
+                        value={upDown}
+                        options={twoOptions}
+                        onchange={handlePercentChange} 
+                        ></lightning-combobox>
+                    </template>
+                </div>
+                <div class="slds-col slds-size_3-of-5">
+                    <div class="center">
+                        <p>Average Unit Price: ${averageUnitPrice}</p>
+                        <p>Average Margin: {averageMarginUp}%</p>
+                        <p>Current Cost: ${productCost}</p>
+                    </div>
+                </div>
             </div>
-            <div class="slds-col slds-size_2-of-3">
-             
-            </div>
-        </div>
-    </lightning-modal-body>
-    <lightning-modal-footer>
-        <lightning-button label="OK" onclick={handleOk}></lightning-button>
-    </lightning-modal-footer>
+        </lightning-modal-body>
+        <lightning-modal-footer>
+            <lightning-button label="Build Preview" onclick={handlePreview}></lightning-button>
+        </lightning-modal-footer>
+    </template>
+    <template if:false={gatherScreen}>
+        <lightning-modal-body>
+            <template if:true={loading}>
+                <lightning-spinner alternative-text="Loading" size="small"></lightning-spinner>
+            </template>
+            <template if:false={loading}>
+                {numberInput} - {upDown}
+            </template>
+        </lightning-modal-body>
+        <lightning-modal-footer>
+            <lightning-button label="Save and Close" onclick={handleClose}></lightning-button>
+        </lightning-modal-footer>
+    </template>
 </template>

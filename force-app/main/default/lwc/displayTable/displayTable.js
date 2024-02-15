@@ -21,6 +21,7 @@ export default class DisplayTable extends LightningElement {
     enforceFloor = false;
     averageUnitPrice = 0; 
     averageMarginUp = 0;
+    productCost; 
     @track fetchedData = []; 
     @api iAmSpinning(){
         this.foundProducts = false; 
@@ -97,20 +98,8 @@ export default class DisplayTable extends LightningElement {
                     this.fetchedData = [...dataBack]; 
                        
                 }).then((x)=>{
-                    this.averageUnitPrice = roundNum(this.getAverage(this.fetchedData),2);
-                    //cost shuold be same across board 
-                    //price can be anything here using average
-                    //returnDecimalBoolean true/false do you want full number or dec.  
-                    this.averageMarginUp = roundNum(this.marginCalc(this.fetchedData[0].Product_Cost__c, this.averageUnitPrice, false),3)
-                    
-                    const averages = new CustomEvent('newaverage',{
-                        detail:{
-                            unitprice: this.averageUnitPrice,
-                            margins: this.averageMarginUp
-                        }
-                    })
-
-                    this.dispatchEvent(averages); 
+                   this.productCost = this.fetchedData[0]?.Product_Cost__c ?? 0; 
+                   this.alertPriceUpdate(); 
                 })
         }
      
@@ -279,6 +268,10 @@ export default class DisplayTable extends LightningElement {
         size: 'medium',
         description: 'Accessible description of modal\'s purpose',
         content: 'Passed into content api',
+        averageMarginUp: this.averageMarginUp,
+        averageUnitPrice: this.averageUnitPrice,
+        productCost: this.productCost,
+        fetchedData: this.fetchedData 
     })
       console.log(result)  
    }
@@ -296,5 +289,24 @@ export default class DisplayTable extends LightningElement {
     }else{
         return (margin * 100); 
     }
+   }
+
+
+   //update the priceInfo component
+   alertPriceUpdate(){
+    this.averageUnitPrice = roundNum(this.getAverage(this.fetchedData),2);
+    //cost shuold be same across board 
+    //price can be anything here using average
+    //returnDecimalBoolean true/false do you want full number or dec.  
+    this.averageMarginUp = roundNum(this.marginCalc(this.productCost, this.averageUnitPrice, false),2)
+    
+    const averages = new CustomEvent('newaverage',{
+        detail:{
+            unitprice: this.averageUnitPrice,
+            margins: this.averageMarginUp
+        }
+    })
+
+    this.dispatchEvent(averages);
    }
 }

@@ -1,10 +1,19 @@
-
+import { api } from "lwc";
 import LightningModal from 'lightning/modal';
 export default class ApplyAllModal extends LightningModal {
+    @api averageUnitPrice;
+    @api averageMarginUp;
+    @api productCost; 
+    @api fetchedData; 
     value = ''; 
-    upDown = 'Up';
+    upDown;
     numberInput = 0;
     showPercentIncrease = false;  
+    fieldLabel = '';
+    gatherScreen = true; 
+    loading = false; 
+
+
     get options(){
         return[
             {label:'Unit Price', value:'UnitPrice'},
@@ -15,20 +24,43 @@ export default class ApplyAllModal extends LightningModal {
     }
     get twoOptions(){
         return [
-            {label:'Increase', value:'Up'},
-            {label:'Decrease', value:'Down'}
+            {label:'Set Direct', value:'SetDirect'},
+            {label:'Increase % Value', value:'Up'},
+            {label:'Decrease % Value', value:'Down'}
         ]
     }
     handleChange(evt){
         this.value = evt.detail.value
-        this.showPercentIncrease = this.value === 'Min_Margin__c' ? true : false; 
+        let index = this.options.findIndex(x => x.value === this.value)
+        this.fieldLabel =  `Set ${this.options[index].label}`
+        this.showPercentIncrease = this.value != '' ? true : false; 
     }
 
+    showNumbInput = ''; 
+    //here we spread the values from the display table
+    copyData;
     handlePercentChange(evt){
         this.upDown = evt.detail.value; 
+        this.showNumbInput = this.upDown != ''? true:false;
+        this.copyData = [{...this.fetchedData}]
     }
-    handleOk(){
-        console.log('hi')
-        this.close('picked ', this.value);
+
+    handleNumber(evt){
+        console.log(this.fetchedData)
+        this.numberInput = evt.detail.value; 
+    }
+    async handlePreview(){
+        this.loading = true;
+        this.gatherScreen = false;
+        
+        for(let i=0; i<this.copyData.length; i++){
+            this.copyData[i].UnitPrice = this.numberInput; 
+        }
+        console.log(this.copyData)
+        this.loading = false; 
+    }
+
+    handleClose(){
+        this.close('update');
     }
 }
