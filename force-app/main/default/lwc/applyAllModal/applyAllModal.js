@@ -42,19 +42,19 @@ export default class ApplyAllModal extends LightningModal {
     handlePercentChange(evt){
         this.upDown = evt.detail.value; 
         this.showNumbInput = this.upDown != ''? true:false;
-        this.copyData = [{...this.fetchedData}]
+        
     }
-
+    
     handleNumber(evt){
-        console.log(this.fetchedData)
         this.numberInput = evt.detail.value; 
     }
     async handlePreview(){
         this.loading = true;
         this.gatherScreen = false;
-        
+        this.copyData =  JSON.parse(JSON.stringify(this.fetchedData));
+        let fieldToUpdate = this.value
         for(let i=0; i<this.copyData.length; i++){
-            this.copyData[i].UnitPrice = this.numberInput; 
+            this.copyData[i].fieldToUpdate = Number(this.numberInput); 
         }
         console.log(this.copyData)
         this.loading = false; 

@@ -58,17 +58,17 @@ export default class PriceSummaryHolder extends LightningElement {
                             apexOrderBy: apexOrderBy
                         }
         this.template.querySelector("c-display-table").iAmSpinning();
-        let to = await this.letSpreadBreath();
+        let to = await this.letSpreadBreath(350);
                  
         //load products in table
         this.template.querySelector("c-display-table").loadProds();
         
     }
-     letSpreadBreath() {
+     letSpreadBreath(timeOutTime) {
         return new Promise((resolve) => {
           setTimeout(() => {
             resolve('resolved');
-          }, 500);
+          }, timeOutTime);
         });
       }
     handleOpen(evt){
@@ -76,12 +76,13 @@ export default class PriceSummaryHolder extends LightningElement {
         this.fetchedData[index].readOnly = false; 
     }
     showInfo = false; 
-    handleAverages(evt){
+    async handleAverages(evt){
+        let wait = await this.letSpreadBreath(400)
         this.showInfo = true; 
         this.avgProps = {
             unitPrice: evt.detail?.unitprice ?? 'not found',
             margin: evt.detail?.margins ?? 'not found',
-            prodId: this.productId
+            productId: this.productId
         }
     }
 }

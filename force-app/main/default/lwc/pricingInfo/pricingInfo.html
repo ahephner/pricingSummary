@@ -3,7 +3,12 @@
         <div class="slds-col slds-size_1-of-2">
             <lightning-card >
               <div slot="title">
+                <span>
+                  Price Books
+                </span>  <br>
+                <span>
                   Average Unit Price
+                </span>
               </div>
 
               <div class="numbs">
@@ -11,16 +16,58 @@
                 ${unitPrice}
               </div>
             </lightning-card>
+            <lightning-card >
+              <div slot="title">
+                  <span>
+                    Average Open Invoice
+                  </span> <br>
+                  <span>
+                    Unit Price 
+                  </span>
+              </div>
+
+              <div class="numbs"> 
+                <!-- Card Body  -->
+                ${avgOpenPrice}
+              </div>
+            </lightning-card>
         </div>
         <div class="slds-col slds-size_1-of-2">
             <lightning-card >
                 <div slot="title">
+                   <span>
+                    Price Books
+                   </span><br>
+                   <span>
                     Average Unit Margin
+                   </span> 
                 </div>
   
                 <div class="numbs"> 
                   <!-- Card Body  -->
                   {margin}%
+                </div>
+              </lightning-card>
+              <lightning-card >
+                <div slot="title">
+                    <span>Average Invoice Unit Price</span><br>
+                    <span><i>Last 30 Days</i> </span>
+                </div>
+  
+                <div class="numbs"> 
+                  <!-- Card Body  -->
+                  ${avgUnitPrice}
+                </div>
+              </lightning-card>
+              <lightning-card >
+                <div slot="title">
+                  <span>Average Invoice Unit Price</span><br>
+                  <span><i>Last 30 Days</i> </span>
+                </div>
+  
+                <div class="numbs"> 
+                  <!-- Card Body  -->
+                  ${avgQuotePrice}
                 </div>
               </lightning-card>
         </div>
