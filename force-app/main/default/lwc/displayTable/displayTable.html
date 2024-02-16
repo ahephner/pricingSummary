@@ -1,20 +1,201 @@
 <template>
-    <lightning-card icon-name="standard:account" variant="base">
-      <div slot="title">
-          Card Title
-      </div>
-      <div slot="actions">
+  <!-- <lightning-button 
+    variant="base"
+    label="Button Label" 
+    onclick={handleClick} 
+  ></lightning-button> -->
+  <!-- <lightning-card variant="base">
+
     
-      </div>
-      <div slot="footer">
-        {take}
-      </div>
-      <div>
-        <!-- Card Body  -->
-        <p>body</p>
+      <table class="slds-table slds-table_cell-buffer slds-table_bordered slds-table_striped" aria-label="Example default base table of Opportunities">
+        <thead>
+          <tr class="slds-line-height_reset">
+            <th class="" scope="col">
+              <div class="slds-truncate" title="Opportunity Name">Product Pricebook</div>
+            </th>
+            <th class="" scope="col">
+              <div class="slds-truncate" title="Account Name">Cost</div>
+            </th>
+            <th class="" scope="col">
+              <div class="slds-truncate" title="Close Date">List Price</div>
+            </th>
+            <th class="" scope="col">
+              <div class="slds-truncate" title="Stage">Floor</div>
+            </th>
+            <th class="" scope="col">
+              <div class="slds-truncate" title="Confidence">Level 1</div>
+            </th>
+            <th class="" scope="col">
+              <div class="slds-truncate" title="Amount">Margin</div>
+            </th>
+            <th class="" scope="col">
+              <div class="slds-truncate" title="Contact">Level 2</div>
+            </th>
+            <th class="" scope="col">
+              <div class="slds-truncate" title="Contact">Margin</div>
+            </th>
+          </tr>
+        </thead>
 
-        {info}
+          <template if:true={foundProducts}>
+            <template  for:each={fetchedData} for:item="x" for:index="index">
+               
+              <tr class="slds-hint-parent" key={x.Id}>
+                <th data-label="Opportunity Name" scope="row">
+                  
+                  <div class="slds-truncate names" title="Cloudhub">
+                    <a href={x.bookURL} target="_blank" tabindex="-1" class="slds-m-bottom_x-small">{x.priceBook}</a>
+                      <a href={x.pbeURL} target="_blank" tabindex="-1">{x.name}</a>
+                    </div>
+                </th>
+                <td data-label="Account Name">
+                  <div class="slds-truncate" title="Cloudhub">{x.cost}</div>
+                </td>
+                <td data-label="Account Name">
+                  <div class="slds-truncate" title="Cloudhub">{x.unitPrice}</div>
+                </td>
+                <td data-label="Account Name">
+                  <div class="slds-truncate" title="Cloudhub">{x.floor}</div>
+                </td>
+                <td data-label="Account Name">
+                  <div class="slds-truncate" title="Cloudhub">{x.levelOne}</div>
+                </td>
+                <td data-label="Account Name">
+                  <div class="slds-truncate" title="Cloudhub">{x.levelOneMar}</div>
+                </td>
+              </tr>
+            </template>
+          </template>
+          <template if:false={foundProducts}>
+            <div class="exampleHolder">
+              <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+          </div>
+          </template>
 
+      </table>
+    </lightning-card> -->
+    <lightning-card>
+      <div class="maintain">
+        <lightning-input data-id="toggle" type="toggle" 
+        label='Maintain Floors' checked={enforceFloor} onchange={handleEnforce}
+        message-toggle-active="" message-toggle-inactive=""></lightning-input>
+        <lightning-helptext content="If checked and Unit Price is changed the floor price will reflect Floor Margin to Unit Price"></lightning-helptext>
       </div>
-    </lightning-card>
+    <div class="slds-scrollable_y" style="height:350px; min-height:350px;">
+    <table class="slds-table slds-table_cell-buffer slds-table_bordered slds-table_striped" aria-label="Example table of Opportunities with striped rows">
+      <thead>
+      <tr class="slds-line-height_reset">
+      <th class="" scope="col">
+      <div class="slds-truncate" title="Opportunity Name">Pricebook - Entry</div>
+      </th>
+      <th class="" scope="col">
+      <div class="slds-truncate" title="Account Name">Cost</div>
+      </th>
+      <th class="" scope="col">
+      <div class="slds-truncate" title="Close Date">Unit Price</div>
+      </th>
+      <th class="" scope="col">
+      <div class="slds-truncate" title="Stage">Floor</div>
+      </th>
+      <th class="" scope="col">
+      <div class="slds-truncate" title="Confidence">Floor Margin</div>
+      </th>
+      <th class="" scope="col">
+      <div class="slds-truncate" title="Amount">Min Margin</div>
+      </th>
+      <th class="" scope="col">
+      <div class="slds-truncate" title="Button"></div>
+      </th>
+      </tr>
+      </thead>
+      <tbody>
+        <template if:false={foundProducts}>
+          <div class="exampleHolder">
+            <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+        </div>
+        </template>
+        <template if:true={foundProducts}>
+          <template  for:each={fetchedData} for:item="x" for:index="index">
+
+      <tr class="slds-hint-parent" key={x.Id}>
+      <th data-label="Opportunity Name" scope="row">
+      <div class="slds-truncate names" title="Cloudhub">
+        <a href={x.bookURL} target="_blank" tabindex="-1" class="slds-m-bottom_x-small">{x.priceBook}</a>
+        <a href={x.pbeURL} target="_blank" tabindex="-1">{x.name}</a>
+      </div>
+      </th>
+      <td data-label="Account Name">
+      <div class="slds-truncate" title="Cost">
+        <lightning-input type="number" name={x.Id} readonly 
+                                        value={x.Product_Cost__c} formatter="currency" step="0.01"></lightning-input>
+      </div>
+      </td>
+      <td data-label="Close Date">
+      <div class="slds-truncate" title="List Price">
+        <lightning-input type="number" name={x.Id} read-only={x.readOnly} onchange={handleUnitPrice}
+                                        value={x.UnitPrice} formatter="currency" step="0.01" ></lightning-input>
+      </div>
+      </td>
+      <td data-label="Floor">
+      <div class="slds-truncate" title="Floor">
+        <lightning-input type="number" name={x.Id} read-only={x.readOnly} onchange={handleFloor} 
+                                        value={x.Floor_Price__c} formatter="currency" step="0.01"></lightning-input>
+      </div>
+      </td>
+      <td data-label="floorMargin">
+      <div class="slds-truncate" title="Level One">
+        <lightning-input type="number" name={x.Id} read-only={x.readOnly} onchange={handleFloorMargin}
+                                        value={x.Floor_Margin__c}  step="0.01"></lightning-input>
+      </div>
+      </td>
+      <td data-label="levOneMargin">
+      <div class="slds-truncate" title="Margin">
+        <lightning-input type="number" name={x.Id} read-only={x.readOnly} onchange={handleMinMargin}
+                                        value={x.Min_Margin__c}  step="0.01"></lightning-input>
+      </div>
+      </td>
+      <td data-label="Edit Button">
+      <div class="slds-truncate" title="btn">
+       <template if:true={x.canEdit}>
+         <lightning-button 
+          variant={x.btnBrand}
+          label={x.btnText} 
+          name={x.Id}
+          onclick={editOne} 
+        ></lightning-button>
+       </template>
+      </div>
+      </td>
+      </tr>
+      
+    </template>
+  </template>
+      </tbody>
+    </table>
+  </div>
+  
+  <div>
+      <template if:true={showFooter}>
+        <div class="slds-grid">
+          <div class="slds-col slds-size_1-of-2">
+            <lightning-button-group class="slds-float_right slds-m-top_x-small">
+              <lightning-button label="Apply All" variant="brand" onclick={applyAll}></lightning-button>
+              <!-- <lightning-button label="Save"></lightning-button> -->
+            </lightning-button-group>
+          </div>
+          <div class="slds-col slds-size_1-of-2">
+            <lightning-button-group class="slds-float_right slds-m-top_x-small">
+              <!-- <lightning-button label="Refresh"></lightning-button> -->
+              <lightning-button label={editAllBTN} 
+                                variant="destructive"
+                                onclick={editAll}></lightning-button>
+      
+              <lightning-button label="Save" variant="brand" onclick={save}></lightning-button>
+            </lightning-button-group>
+          </div>
+
+        </div>
+    </template>
+    </div>
+  </lightning-card>
 </template>

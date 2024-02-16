@@ -69,8 +69,8 @@ export default class PriceSummary extends LightningElement {
     get orderByOptions(){
         return[
             {label:'None', value:'none'},
-            {label:'Highest Price', value:'ASC'},
-            {label:'Lowest Price', value:'DESC'}
+            {label:'Highest Price', value:'DESC'},
+            {label:'Lowest Price', value:'ASC'}
         ]
     }
 
@@ -95,6 +95,10 @@ export default class PriceSummary extends LightningElement {
 
     handleProduct(mess){
         this.product2Id = mess.detail; 
+
+        // if(hideFilter){
+        //     this.handleSearch()
+        // }
     }
     handleAccount(mess){
         this.accountId = mess.detail; 
@@ -114,4 +118,5 @@ export default class PriceSummary extends LightningElement {
            }
            return good; 
     }
+
 }
