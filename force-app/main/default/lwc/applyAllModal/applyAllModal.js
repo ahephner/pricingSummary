@@ -30,6 +30,7 @@ export default class ApplyAllModal extends LightningModal {
             {label:'Decrease % Value', value:'Down'}
         ]
     }
+
     inputLabel; 
     handleChange(evt){
         this.value = evt.detail.value
@@ -80,6 +81,8 @@ export default class ApplyAllModal extends LightningModal {
     }
     handleDirect(data, field){
         for(let i=0; i< data.length; i++){
+            data[i].updateProd2 = field ==='Floor_Price__c' ? true : false; 
+            data[i].isEdited = true;
             data[i].prevVal = data[i][field]
             data[i][field] = Number(this.numberInput); 
             data[i].changeVal = data[i].prevVal > data[i][field] ? roundNum(data[i][field] - data[i].prevVal,2): roundNum(data[i][field]- data[i].prevVal,2);   
@@ -93,6 +96,8 @@ export default class ApplyAllModal extends LightningModal {
         let numb = Number(this.numberInput/100)
         for(let i=0; i<data.length;i++){
             data[i].prevVal = data[i][field]
+            data[i].updateProd2 = field ==='Floor_Price__c' ? true : false;
+            data[i].isEdited = true;
             data[i][field] = roundNum(data[i][field] + (data[i][field] * numb),2);
             data[i].changeVal = data[i].prevVal > data[i][field] ? roundNum(data[i][field] - data[i].prevVal,2): roundNum(data[i][field]- data[i].prevVal,2); 
             data[i].colorClass = data[i].changeVal < 0 ? 'slds-text-color_error': 'slds-text-color_success'; 
@@ -104,7 +109,9 @@ export default class ApplyAllModal extends LightningModal {
     handleMargDown(data, field){
         let numb = Number(this.numberInput/100)
         for(let i=0; i<data.length;i++){
-            data[i].prevVal = data[i][field]
+            data[i].updateProd2 = field ==='Floor_Price__c' ? true : false;
+            data[i].isEdited = true; 
+            data[i].prevVal = data[i][field];
             data[i][field] = roundNum(data[i][field] - (data[i][field] * numb),2);
             data[i].changeVal = data[i].prevVal > data[i][field] ? roundNum(data[i][field] - data[i].prevVal,2): roundNum(data[i][field]- data[i].prevVal,2); 
             data[i].colorClass = data[i].changeVal < 0 ? 'slds-text-color_error': 'slds-text-color_success'; 
@@ -118,7 +125,14 @@ export default class ApplyAllModal extends LightningModal {
         this.copyData.splice(index, 1);
         
     }
+
+    handleSave(){
+        //filter products
+        //use shared apex to update
+        //close screen return apex message
+        this.close(this.copyData)
+    }
     handleClose(){
-        this.close('update');
+        this.close('cancel');
     }
 }

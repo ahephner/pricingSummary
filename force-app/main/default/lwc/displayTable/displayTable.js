@@ -273,7 +273,14 @@ export default class DisplayTable extends LightningElement {
         productCost: this.productCost,
         fetchedData: this.fetchedData 
     })
-      console.log(result)  
+    .then((result)=>{
+        //console.log(result)
+        if(result!= undefined && result !='cancel'){
+            this.fetchedData = [...result];  
+            this.save()
+            
+        }
+    }) 
    }
 
    //math functions; 
