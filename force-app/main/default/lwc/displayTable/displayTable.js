@@ -137,7 +137,9 @@ export default class DisplayTable extends LightningElement {
                 //maintain floor margin
                     if(this.enforceFloor){
                         this.fetchedData[index].updateProd2 = true; 
-                        this.fetchedData[index].Floor_Price__c = roundNum((this.fetchedData[index].UnitPrice/(1 - this.fetchedData[index].Floor_Margin__c)),2);
+                        console.log(`Unit Price ${this.fetchedData[index].UnitPrice} Floor Margin ${this.fetchedData[index].Floor_Margin__c}`);
+                        
+                        this.fetchedData[index].Floor_Price__c = roundNum((this.fetchedData[index].UnitPrice/(1 - (this.fetchedData[index].Floor_Margin__c/100))),2);
                     }
                     
             }
@@ -231,7 +233,7 @@ export default class DisplayTable extends LightningElement {
                     })
                 )
             }).finally(() => {
-                console.log('finally');
+                
                 //I need to also uncheck the products that are isChanged === true; 
                 this.saveRecords = [];
                 this.product = [];
@@ -251,7 +253,9 @@ export default class DisplayTable extends LightningElement {
     editAll(){
         if(this.editAllBTN === 'Edit All'){
             for(let i = 0; i<this.fetchedData.length; i++){
-                this.fetchedData[i].readOnly = false; 
+                if(this.fetchedData[i].canEdit){
+                    this.fetchedData[i].readOnly = false; 
+                }
             }
             this.editAllBTN = 'Close All';
         }else{
@@ -273,7 +277,18 @@ export default class DisplayTable extends LightningElement {
         productCost: this.productCost,
         fetchedData: this.fetchedData 
     })
-      console.log(result)  
+    .then((result)=>{
+        //console.log(result)
+        if(result!= undefined && result !='cancel'){
+            this.fetchedData = [...result];  
+            this.save()
+            
+        }
+    }).then(()=>{
+        this.alertPriceUpdate()
+    }).catch((error)=>{
+        console.error(error)
+    })
    }
 
    //math functions; 

@@ -54,11 +54,60 @@
                 <lightning-spinner alternative-text="Loading" size="small"></lightning-spinner>
             </template>
             <template if:false={loading}>
-                {numberInput} - {upDown}
+                 <p class='slds-text-color_error'>Under Construction</p><p>{messageUser}</p>
+                <table  class="slds-table slds-table_cell-buffer slds-table_bordered" aria-labelledby="element-with-table-label other-element-with-table-label">
+                    <thead>
+                        <tr class="slds-line-height_reset">
+                            <th>Price Book</th>
+                            <th>Prev. Value</th>
+                            <th>New Value</th>
+                            <th>Change</th>
+                            <th>Remove</th>
+                        </tr>
+                        </thead>
+                    <tbody >
+                        <template if:true={copyData} for:each={copyData} for:item="x" for:index="index">
+                            <tr key={x.Id} 
+                            class="slds-line-height_reset lineHeight">
+                                <td>
+                                    {x.priceBook}
+                                </td>
+                                <td>
+                                    ${x.prevVal}
+                                </td>
+                                <td>
+                                    ${x.fieldToShow}
+                                </td>
+                                <td class={x.colorClass}>
+                                    ${x.changeVal}
+                                </td> 
+                                <td>
+                                    <lightning-button-icon icon-name="utility:delete"  
+                                                           size="x-small"
+                                                           name={x.Id}  
+                                                           alternative-text="View More" 
+                                                           class="slds-m-left_xx-small"
+                                                           onclick={removeLineItem}></lightning-button-icon>
+                                </td>
+                                <!-- <template lwc:if={x.goodMargin}>
+                                    <td class="showGreen">
+                                        {x.shownMargin}%
+                                    </td>
+                                </template>
+                                <template lwc:else>
+                                    <td>
+                                        {x.shownMargin}%
+                                    </td>
+                                </template> -->
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
             </template>
         </lightning-modal-body>
         <lightning-modal-footer>
-            <lightning-button label="Save and Close" onclick={handleClose}></lightning-button>
+            <lightning-button label="Cancel" onclick={handleClose}></lightning-button>
+            <lightning-button label="Save and Close" onclick={handleSave}></lightning-button>
         </lightning-modal-footer>
     </template>
 </template>

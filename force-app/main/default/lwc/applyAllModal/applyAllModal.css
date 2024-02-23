@@ -8,3 +8,7 @@
 .lineUp{
     display:inline-flex; 
 }
+
+.lineHeight{
+    height: 30px;
+}
