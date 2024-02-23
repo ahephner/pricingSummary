@@ -231,7 +231,7 @@ export default class DisplayTable extends LightningElement {
                     })
                 )
             }).finally(() => {
-                console.log('finally');
+                
                 //I need to also uncheck the products that are isChanged === true; 
                 this.saveRecords = [];
                 this.product = [];

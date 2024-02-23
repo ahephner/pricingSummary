@@ -85,7 +85,8 @@ export default class ApplyAllModal extends LightningModal {
             data[i].isEdited = true;
             data[i].prevVal = data[i][field]
             data[i][field] = Number(this.numberInput); 
-            data[i].changeVal = data[i].prevVal > data[i][field] ? roundNum(data[i][field] - data[i].prevVal,2): roundNum(data[i][field]- data[i].prevVal,2);   
+            data[i].changeVal = data[i].prevVal > data[i][field] ? roundNum(data[i][field] - data[i].prevVal,2): roundNum(data[i][field]- data[i].prevVal,2);
+            data[i].Floor_Margin__c = field === 'Floor_Price__c' ? roundNum(((data[i][field] - data[i].Product_Cost__c)/data[i][field] *100),2) : data[i].Floor_Margin__c;    
             data[i].colorClass = data[i].changeVal < 0 ? 'slds-text-color_error': 'slds-text-color_success'; 
             data[i].fieldToShow = Number(this.numberInput)
         }   
@@ -100,6 +101,7 @@ export default class ApplyAllModal extends LightningModal {
             data[i].isEdited = true;
             data[i][field] = roundNum(data[i][field] + (data[i][field] * numb),2);
             data[i].changeVal = data[i].prevVal > data[i][field] ? roundNum(data[i][field] - data[i].prevVal,2): roundNum(data[i][field]- data[i].prevVal,2); 
+            data[i].Floor_Margin__c = field === 'Floor_Price__c' ? roundNum(((data[i][field] - data[i].Product_Cost__c)/data[i][field] *100),2) : data[i].Floor_Margin__c;  ; 
             data[i].colorClass = data[i].changeVal < 0 ? 'slds-text-color_error': 'slds-text-color_success'; 
             data[i].fieldToShow = data[i][field] ; 
             //console.log(`${data[i][field]} = (${data[i][field]} * ${numb}) =`,  data[i][field] + (data[i][field] * numb))
@@ -113,7 +115,8 @@ export default class ApplyAllModal extends LightningModal {
             data[i].isEdited = true; 
             data[i].prevVal = data[i][field];
             data[i][field] = roundNum(data[i][field] - (data[i][field] * numb),2);
-            data[i].changeVal = data[i].prevVal > data[i][field] ? roundNum(data[i][field] - data[i].prevVal,2): roundNum(data[i][field]- data[i].prevVal,2); 
+            data[i].changeVal = data[i].prevVal > data[i][field] ? roundNum(data[i][field] - data[i].prevVal,2): roundNum(data[i][field]- data[i].prevVal,2);
+            data[i].Floor_Margin__c = field === 'Floor_Price__c' ? roundNum(((data[i][field] - data[i].Product_Cost__c)/data[i][field] *100),2) : data[i].Floor_Margin__c;  
             data[i].colorClass = data[i].changeVal < 0 ? 'slds-text-color_error': 'slds-text-color_success'; 
             data[i].fieldToShow = data[i][field]; 
         }
