@@ -9,6 +9,7 @@ export default class PriceSummary extends LightningElement {
     accountId;
     primaryCategory;   
     primCat = 'All';
+    priceBookId; 
     
     field = 'UnitPrice'; 
     connectedCallback(){
@@ -77,6 +78,7 @@ export default class PriceSummary extends LightningElement {
     handleOrderBy(evt){
         this.orderByValue = evt.detail.value
     }
+    
     //limit results
     get limitOptions() {
         let options = [];
@@ -106,7 +108,10 @@ export default class PriceSummary extends LightningElement {
         const newAccount = new CustomEvent('newcust', {detail: this.accountId});
         this.dispatchEvent(newAccount);
     }
-
+    handlePriceBook(mess){
+        this.priceBookId = mess.detail; 
+        console.log(1, this.priceBookId)
+    }
     handlePrimCat(x){
         this.primCat = x.detail.value; 
     }
