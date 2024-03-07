@@ -34,14 +34,14 @@
                 <div class="slds-col slds-size_1-of-3 filters">
                     <!-- https://github.com/ahephner/lwcSummer/blob/df04b0d3bdb98ed54fb31ebff081c8bb55599aac/force-app/main/default/lwc/rewardsFlow/rewardsFlow.js -->
                     <c-account-look-up onnewaccount={handleAccount}></c-account-look-up>
-
+                    
                     <lightning-combobox
-                    name="progress"
-                    label="Order By"
-                    value={orderByValue}
-                    placeholder=""
-                    options={orderByOptions}
-                    onchange={handleOrderBy} ></lightning-combobox>
+                    name="primary category"
+                    label="Primary Category"
+                    value={primCat}
+                    options={primaryCategory}
+                    onchange={handlePrimCat} ></lightning-combobox>
+                    
 
                     <lightning-combobox
                     name="progress"
@@ -52,13 +52,16 @@
                     onchange={handleLimits} ></lightning-combobox>
                 </div>
                 <div class="slds-col slds-size_1-of-3 slds-m-left_small">
-                    <lightning-combobox
-                    name="primary category"
-                    label="Primary Category"
-                    value={primCat}
-                    options={primaryCategory}
-                    onchange={handlePrimCat} ></lightning-combobox>
+                    <c-price-book-look-up onnewpricebook={handlePriceBook}></c-price-book-look-up>
 
+                    <lightning-combobox
+                    name="progress"
+                    label="Order By"
+                    value={orderByValue}
+                    placeholder=""
+                    options={orderByOptions}
+                    onchange={handleOrderBy} ></lightning-combobox>
+                    
                     <lightning-combobox
                     name="field"
                     label="Filter Field"
