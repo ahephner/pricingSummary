@@ -29,7 +29,8 @@ export default class PriceSummary extends LightningElement {
                     priceField: this.field, 
                     limitAmount: this.limitValue === 'no'? 0 : Number(this.limitValue),
                     orderBy: this.orderByValue,
-                    primCat: this.primCat
+                    primCat: this.primCat,
+                    pbId: this.priceBookId
                 }
             })
             
@@ -105,12 +106,14 @@ export default class PriceSummary extends LightningElement {
     handleAccount(mess){
         this.accountId = mess.detail; 
         //need to get avaliable price books now for the account in the priceSummaryHolder
-        const newAccount = new CustomEvent('newcust', {detail: this.accountId});
-        this.dispatchEvent(newAccount);
+        if(this.accountId.length>1){
+            const newAccount = new CustomEvent('newcust', {detail: this.accountId});
+            this.dispatchEvent(newAccount);
+        }
     }
     handlePriceBook(mess){
         this.priceBookId = mess.detail; 
-        console.log(1, this.priceBookId)
+        
     }
     handlePrimCat(x){
         this.primCat = x.detail.value; 
@@ -118,7 +121,8 @@ export default class PriceSummary extends LightningElement {
     valid(){
         let good = true; 
         if(this.accountId === undefined && 
-           this.product2Id === undefined){
+           this.product2Id === undefined && 
+           this.priceBookId === undefined){
             good = false; 
            }
            return good; 

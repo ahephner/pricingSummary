@@ -80,6 +80,7 @@
         label='Maintain Floors' checked={enforceFloor} onchange={handleEnforce}
         message-toggle-active="" message-toggle-inactive=""></lightning-input>
         <lightning-helptext content="If checked and Unit Price is changed the floor price will reflect Floor Margin to Unit Price"></lightning-helptext>
+        <p>{userInform}</p>
       </div>
     <div class="slds-scrollable_y" style="height:350px; min-height:350px;">
     <table class="slds-table slds-table_cell-buffer slds-table_bordered slds-table_striped" aria-label="Example table of Opportunities with striped rows">
@@ -92,17 +93,17 @@
       <div class="slds-truncate" title="Account Name">Cost</div>
       </th>
       <th class="" scope="col">
-      <div class="slds-truncate" title="Close Date">Unit Price</div>
+      <div class="slds-truncate" title="Close Date">List Price</div>
       </th>
       <th class="" scope="col">
-      <div class="slds-truncate" title="Stage">Floor</div>
+      <div class="slds-truncate" title="Stage">List Margin</div>
       </th>
       <th class="" scope="col">
-      <div class="slds-truncate" title="Confidence">Floor Margin</div>
+      <div class="slds-truncate" title="Confidence">Hold Margin</div>
       </th>
-      <th class="" scope="col">
+      <!-- <th class="" scope="col">
       <div class="slds-truncate" title="Amount">Min Margin</div>
-      </th>
+      </th> -->
       <th class="" scope="col">
       <div class="slds-truncate" title="Button"></div>
       </th>
@@ -137,12 +138,18 @@
       </div>
       </td>
       <td data-label="Floor">
-      <div class="slds-truncate" title="Floor">
-        <lightning-input type="number" name={x.Id} read-only={x.readOnly} onchange={handleFloor} 
-                                        value={x.Floor_Price__c} formatter="currency" step="0.01"></lightning-input>
+      <div class="slds-truncate" title="List Margin">
+        <lightning-input type="number" name={x.Id} read-only={x.readOnly} onchange={handleListMargin} 
+                                        value={x.List_Margin_Calculated__c}  step="0.01"></lightning-input>
       </div>
       </td>
-      <td data-label="floorMargin">
+      <td data-label="Hold Margin">
+        <div class="slds-truncate" title="List Margin">
+          <lightning-input type="checkbox" name={x.Id} disabled={x.readOnly} onchange={handleCheck} 
+                                        value={x.Hold_Margin__c}  ></lightning-input>
+        </div>
+      </td>
+      <!-- <td data-label="floorMargin">
       <div class="slds-truncate" title="Level One">
         <lightning-input type="number" name={x.Id} read-only={x.readOnly} onchange={handleFloorMargin}
                                         value={x.Floor_Margin__c}  step="0.01"></lightning-input>
@@ -153,7 +160,7 @@
         <lightning-input type="number" name={x.Id} read-only={x.readOnly} onchange={handleMinMargin}
                                         value={x.Min_Margin__c}  step="0.01"></lightning-input>
       </div>
-      </td>
+      </td> -->
       <td data-label="Edit Button">
       <div class="slds-truncate" title="btn">
        <template if:true={x.canEdit}>

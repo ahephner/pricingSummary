@@ -1,6 +1,7 @@
 import { LightningElement,api, track } from 'lwc';
 import getProductPrice from '@salesforce/apex/getPriceBooks.getProductPrice';
 import getBestPriceString from '@salesforce/apex/getPriceBooks.getBestPriceString';
+import checkPriceBooks from '@salesforce/apex/getPriceBooks.checkPriceBooks';
 import savePBE from '@salesforce/apex/getPriceBooks.savePBE';
 import { updateRecord } from 'lightning/uiRecordApi';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
@@ -10,6 +11,7 @@ export default class DisplayTable extends LightningElement {
      prods; 
     @api productId;
     @api accountId
+    @api priceBookId; 
     @api limitedSearchRes
     @api orderSearchBy
     @api primaryCat
@@ -22,6 +24,7 @@ export default class DisplayTable extends LightningElement {
     averageUnitPrice = 0; 
     averageMarginUp = 0;
     productCost; 
+    userInform; 
     @track fetchedData = []; 
     @api iAmSpinning(){
         this.foundProducts = false; 
@@ -29,8 +32,43 @@ export default class DisplayTable extends LightningElement {
     //get product info 
     //send averages back home
     @api loadProds(){
-         
-        if(this.accountId != ''){
+        if(this.priceBookId != ''){
+            checkPriceBooks({pricebook: this.priceBookId, productId: this.productId, orderBy:this.apexOrderBy })
+            .then((res)=>{
+                if(res){
+                    let dataBack = res.map(x=>{
+    
+                        return{
+                            Id: x.Id,
+                            isEdited: false,
+                            updateProd2: false,
+                            canEdit: x.Pricebook2Id === '01s410000077vSKAAY' ? false: true,
+                            name: x.Product2.Name.substring(0,30)+ '...',
+                            code: x.ProductCode,
+                            priceBook: x.Price_Book_Name__c,
+                            UnitPrice: x.UnitPrice,
+                            Product_Cost__c: x.Product_Cost__c,
+                            Floor_Price__c: x.Floor_Price__c, 
+                            //List_Margin__c: x.List_Margin__c,
+                            List_Margin_Calculated__c: x.List_Margin_Calculated__c,
+                            Hold_Margin__c: x.Hold_Margin__c,
+                            // levelTwoMar: x.Level_2_Margin__c/100,
+                            Floor_Margin__c: x.Floor_Margin__c,
+                            Min_Margin__c: x.Min_Margin__c === undefined ? x.Floor_Margin__c : x.Min_Margin__c,
+                            Product2Id: x.Product2Id,
+                            readOnly: true,
+                            btnText: 'Edit', 
+                            btnBrand: 'brand',
+                            bookURL: `https://advancedturf--full.sandbox.lightning.force.com/lightning/r/Pricebook2/${x.Pricebook2Id}/view`,
+                            pbeURL:  `https://advancedturf--full.sandbox.lightning.force.com/lightning/r/PricebookEntry/${x.Id}/view`
+                        }
+                    }); 
+        
+                    this.fetchedData = [...dataBack];
+                    this.userInform = 'Searching Single Price Book'
+                }
+            })
+        }else if(this.accountId != ''){
             getBestPriceString({priceBooksAcc: this.accountpricebooks, priceField: this.priceSearchField, productId:this.productId, orderBy:this.apexOrderBy  })
                 .then((res)=>{
                     if(res){
@@ -47,10 +85,9 @@ export default class DisplayTable extends LightningElement {
                                 UnitPrice: x.UnitPrice,
                                 Product_Cost__c: x.Product_Cost__c,
                                 Floor_Price__c: x.Floor_Price__c, 
-                                // Level_1_UserView__c: x.Level_1_UserView__c,
-                                // Level_One_Margin__c: x.Level_One_Margin__c/100,
-                                // Level_2_UserView__c: x.Level_2_UserView__c,
-                                // levelTwoMar: x.Level_2_Margin__c/100,
+                                //List_Margin__c: x.List_Margin__c,
+                                List_Margin_Calculated__c: x.List_Margin_Calculated__c,
+                                Hold_Margin__c: x.Hold_Margin__c,
                                 Floor_Margin__c: x.Floor_Margin__c,
                                 Min_Margin__c: x.Min_Margin__c === undefined ? x.Floor_Margin__c : x.Min_Margin__c,
                                 Product2Id: x.Product2Id,
@@ -63,6 +100,7 @@ export default class DisplayTable extends LightningElement {
                         }); 
             
                         this.fetchedData = [...dataBack];
+                        this.userInform = 'Searching best price for this account'
                     }
                 })
         }else if(this.accountId === ''){
@@ -81,10 +119,9 @@ export default class DisplayTable extends LightningElement {
                             UnitPrice: x.UnitPrice,
                             Product_Cost__c: x.Product_Cost__c,
                             Floor_Price__c: x.Floor_Price__c, 
-                            // Level_1_UserView__c: x.Level_1_UserView__c,
-                            // Level_One_Margin__c: x.Level_One_Margin__c/100,
-                            // Level_2_UserView__c: x.Level_2_UserView__c,
-                            // levelTwoMar: x.Level_2_Margin__c/100,
+                            //List_Margin__c: x.List_Margin__c,
+                            List_Margin_Calculated__c: x.List_Margin_Calculated__c,
+                            Hold_Margin__c: x.Hold_Margin__c,
                             Floor_Margin__c: x.Floor_Margin__c,
                             Min_Margin__c: x.Min_Margin__c === undefined ? x.Floor_Margin__c : x.Min_Margin__c,
                             readOnly: true,
@@ -96,7 +133,7 @@ export default class DisplayTable extends LightningElement {
                         }
                     }); 
                     this.fetchedData = [...dataBack]; 
-                       
+                    this.userInform = 'Searching all price books this product'
                 }).then((x)=>{
                    this.productCost = this.fetchedData[0]?.Product_Cost__c ?? 0; 
                    this.alertPriceUpdate(); 
@@ -111,7 +148,14 @@ export default class DisplayTable extends LightningElement {
     }
     handleEnforce(evt){
         this.enforceFloor = evt.target.checked; 
-        console.log('enforcefloor ', this.enforceFloor)
+       
+    }
+
+    //checkbox
+    handleCheck(evt){
+        let index = this.fetchedData.findIndex(x => x.Id === evt.target.name);
+        this.fetchedData[index].Hold_Margin__c = evt.target.checked; 
+        this.fetchedData[index].isEdited = true;
     }
     // products
     editOne(evt){
@@ -172,6 +216,18 @@ export default class DisplayTable extends LightningElement {
         this.fetchedData[index].Min_Margin__c = this.fetchedData[index].Floor_Margin__c 
     },800)
    }
+
+   handleListMargin(evt){
+    window.clearTimeout(this.delay); 
+    let index = this.fetchedData.findIndex(x => x.Id === evt.target.name);
+    this.fetchedData[index].List_Margin_Calculated__c = evt.detail.value;
+
+    this.delay = setTimeout(()=>{
+        this.fetchedData[index].isEdited = true; 
+        this.fetchedData[index].UnitPrice = roundNum(this.fetchedData[index].Product_Cost__c/(1- (this.fetchedData[index].List_Margin_Calculated__c/100)), 2); 
+    })
+   }
+   
    handleMinMargin(evt){ 
     window.clearTimeout(this.delay); 
     let index = this.fetchedData.findIndex(x => x.Id === evt.target.name);

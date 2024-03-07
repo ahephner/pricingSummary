@@ -41,16 +41,19 @@ export default class PriceSummaryHolder extends LightningElement {
     priceField; 
     foundPrice = false; 
     productId; 
+    priceBookId; 
     async handleSearch(ext){       
         let orderBy = ext.detail?.orderBy ?? '';
         this.priceField = ext.detail?.priceField ?? 'error';
         this.productId = ext.detail?.product2 ?? '';
+        this.priceBookId = ext.detail?.pbId ?? ''; 
         //pass the order by to apex. This tells it to show me best deal or not
         let apexOrderBy = orderBy != 'none'? ' ORDER BY '+this.priceField +' '+orderBy+'' : ' ORDER BY '+ this.priceField +' ASC';
         
         this.childProps = await {...this.childProps, 
                             productId: this.productId,
                             accountId: ext.detail?.accId ?? '',
+                            priceBookId: this.priceBookId,
                             limitedSearchRes: ext.detail?.limitAmount ?? '',
                             orderSearchBy: ext.detail?.orderBy ?? '',
                             primaryCat: ext.detail?.primCat ?? '',
