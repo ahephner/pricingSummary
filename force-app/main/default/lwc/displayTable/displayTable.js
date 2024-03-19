@@ -49,8 +49,7 @@ export default class DisplayTable extends LightningElement {
                             UnitPrice: x.UnitPrice,
                             Product_Cost__c: x.Product_Cost__c,
                             Floor_Price__c: x.Floor_Price__c, 
-                            //List_Margin__c: x.List_Margin__c,
-                            List_Margin_Calculated__c: x.List_Margin_Calculated__c,
+                            List_Margin__c: x.List_Margin__c,
                             Hold_Margin__c: x.Hold_Margin__c,
                             // levelTwoMar: x.Level_2_Margin__c/100,
                             Floor_Margin__c: x.Floor_Margin__c,
@@ -85,8 +84,7 @@ export default class DisplayTable extends LightningElement {
                                 UnitPrice: x.UnitPrice,
                                 Product_Cost__c: x.Product_Cost__c,
                                 Floor_Price__c: x.Floor_Price__c, 
-                                //List_Margin__c: x.List_Margin__c,
-                                List_Margin_Calculated__c: x.List_Margin_Calculated__c,
+                                List_Margin__c: x.List_Margin__c,
                                 Hold_Margin__c: x.Hold_Margin__c,
                                 Floor_Margin__c: x.Floor_Margin__c,
                                 Min_Margin__c: x.Min_Margin__c === undefined ? x.Floor_Margin__c : x.Min_Margin__c,
@@ -119,8 +117,7 @@ export default class DisplayTable extends LightningElement {
                             UnitPrice: x.UnitPrice,
                             Product_Cost__c: x.Product_Cost__c,
                             Floor_Price__c: x.Floor_Price__c, 
-                            //List_Margin__c: x.List_Margin__c,
-                            List_Margin_Calculated__c: x.List_Margin_Calculated__c,
+                            List_Margin__c: x.List_Margin__c,
                             Hold_Margin__c: x.Hold_Margin__c,
                             Floor_Margin__c: x.Floor_Margin__c,
                             Min_Margin__c: x.Min_Margin__c === undefined ? x.Floor_Margin__c : x.Min_Margin__c,
@@ -178,15 +175,9 @@ export default class DisplayTable extends LightningElement {
             this.fetchedData[index].UnitPrice = evt.detail.value;
             this.fetchedData[index].isEdited = true;
             if(this.fetchedData[index].UnitPrice > 0){
-                //maintain floor margin
-                    if(this.enforceFloor){
-                        this.fetchedData[index].updateProd2 = true; 
-                        console.log(`Unit Price ${this.fetchedData[index].UnitPrice} Floor Margin ${this.fetchedData[index].Floor_Margin__c}`);
-                        
-                        this.fetchedData[index].Floor_Price__c = roundNum((this.fetchedData[index].UnitPrice/(1 - (this.fetchedData[index].Floor_Margin__c/100))),2);
-                    }
-                    
-            }
+                this.fetchedData[index].List_Margin__c = roundNum((((this.fetchedData[index].UnitPrice - this.fetchedData[index].Product_Cost__c)/this.fetchedData[index].UnitPrice)*100),2);
+                     
+                }
         },800)
     }
    handleFloor(evt){
@@ -220,11 +211,11 @@ export default class DisplayTable extends LightningElement {
    handleListMargin(evt){
     window.clearTimeout(this.delay); 
     let index = this.fetchedData.findIndex(x => x.Id === evt.target.name);
-    this.fetchedData[index].List_Margin_Calculated__c = evt.detail.value;
 
+    this.fetchedData[index].List_Margin__c = roundNum(evt.detail.value,2)
     this.delay = setTimeout(()=>{
         this.fetchedData[index].isEdited = true; 
-        this.fetchedData[index].UnitPrice = roundNum(this.fetchedData[index].Product_Cost__c/(1- (this.fetchedData[index].List_Margin_Calculated__c/100)), 2); 
+        this.fetchedData[index].UnitPrice = roundNum(this.fetchedData[index].Product_Cost__c/(1- (this.fetchedData[index].List_Margin__c/100)), 2); 
     })
    }
    
@@ -249,24 +240,18 @@ export default class DisplayTable extends LightningElement {
    save(){
     this.foundProducts = false; 
     this.saveRecords = this.fetchedData.filter(x => x.isEdited === true)
-    this.product = this.fetchedData.filter(x=> x.updateProd2 === true)
+    //this.product = this.fetchedData.filter(x=> x.updateProd2 === true)
     const recordInputs = this.saveRecords.slice().map(draft =>{
         let Id = draft.Id;
         let UnitPrice = draft.UnitPrice;
-        let Min_Margin__c = draft.Min_Margin__c;
-        const fields = {Id, UnitPrice, Min_Margin__c}
+        let List_Margin__c = draft.List_Margin__c;
+        let Hold_Margin__c = draft.Hold_Margin__c;
+        const fields = {Id, UnitPrice, List_Margin__c, Hold_Margin__c}
 
     return fields;
     })
 
-    const product2Id = this.product.slice().map(draft=>{
-        let Id = draft.Product2Id;
-        let Floor_Price__c = draft.Floor_Price__c
-        const fields =  {Id, Floor_Price__c};
-        
-    return fields; 
-    })
-    savePBE({entries: recordInputs, products: product2Id})
+    savePBE({entries: recordInputs})
     .then((res)=>{
         if(res === 'success'){
             this.dispatchEvent(
@@ -381,3 +366,4 @@ export default class DisplayTable extends LightningElement {
     this.dispatchEvent(averages);
    }
 }
+
