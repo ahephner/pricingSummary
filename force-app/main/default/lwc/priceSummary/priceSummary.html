@@ -10,7 +10,8 @@
   <div>
     <div class="slds-grid">
         <div class="slds-col slds-size_2-of-3 slds-m-left_small">
-            <c-product2-look-up onnewproduct={handleProduct}></c-product2-look-up>
+            <c-product2-look-up onnewproduct={handleProduct}
+                                onclearprod={handleClear}></c-product2-look-up>
         </div>
         <div class="slds-col slds-size_1-of-3 slds-m-left_small slds-m-top_large">
             <lightning-button 
@@ -33,9 +34,10 @@
             <div class="slds-grid">
                 <div class="slds-col slds-size_1-of-3 filters">
                     <!-- https://github.com/ahephner/lwcSummer/blob/df04b0d3bdb98ed54fb31ebff081c8bb55599aac/force-app/main/default/lwc/rewardsFlow/rewardsFlow.js -->
-                    <c-account-look-up onnewaccount={handleAccount}></c-account-look-up>
+                    <c-account-look-up onnewaccount={handleAccount}
+                                       onclearaccid={handleClear}></c-account-look-up>
                     
-                    <lightning-combobox
+                    <!-- <lightning-combobox
                     name="primary category"
                     label="Primary Category"
                     value={primCat}
@@ -49,12 +51,13 @@
                     value={limitValue}
                     placeholder="Select Progress"
                     options={limitOptions}
-                    onchange={handleLimits} ></lightning-combobox>
+                    onchange={handleLimits} ></lightning-combobox> -->
                 </div>
                 <div class="slds-col slds-size_1-of-3 slds-m-left_small">
-                    <c-price-book-look-up onnewpricebook={handlePriceBook}></c-price-book-look-up>
+                    <c-price-book-look-up onnewpricebook={handlePriceBook}
+                                          onclearbookid={handleClear}></c-price-book-look-up>
 
-                    <lightning-combobox
+                    <!-- <lightning-combobox
                     name="progress"
                     label="Order By"
                     value={orderByValue}
@@ -67,7 +70,7 @@
                     label="Filter Field"
                     value={field}
                     options={priceFields}
-                    onchange={handlePriceField} ></lightning-combobox>
+                    onchange={handlePriceField} ></lightning-combobox> -->
                 </div>
             </div>
         </template>

@@ -103,6 +103,22 @@ export default class PriceSummary extends LightningElement {
         //     this.handleSearch()
         // }
     }
+    handleClear(mess){
+        let clearWhat = mess.detail; 
+        switch(clearWhat){
+            case 'product':
+                this.product2Id = '';
+                break;
+            case 'account':
+                this.accountId = '';
+                break;
+            case 'pricebook':
+                this.priceBookId = '';
+                break;
+            default:
+                console.log('not found')
+        }
+    }
     handleAccount(mess){
         this.accountId = mess.detail; 
         //need to get avaliable price books now for the account in the priceSummaryHolder

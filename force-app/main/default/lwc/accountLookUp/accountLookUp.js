@@ -23,14 +23,16 @@ export default class AccountLookUp extends LightningElement {
                 console.log(result.error); 
             }
         }
+    handleClear(){
+        this.accName = '';
+        this.showResult = false;
+        const clearAccId = new CustomEvent('clearaccid', {detail: 'account'});
+        this.dispatchEvent(clearAccId); 
+    }
     handleKeyUp(keyWord){
         
         if(keyWord.target.value.length ===0){
-
-            this.showResult = false;
-            this.accId = '';
-            const newAcc = new CustomEvent('newaccount', {detail: this.accId});
-            this.dispatchEvent(newAcc);
+            this.handleClear(); 
             return;   
         }else if(this.minSearch > keyWord.target.value.length){
 
