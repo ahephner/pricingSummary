@@ -23,12 +23,22 @@ export default class AccountLookUp extends LightningElement {
                 console.log(result.error); 
             }
         }
+    handleClear(){
+        this.accName = '';
+        this.showResult = false;
+        const clearAccId = new CustomEvent('clearaccid', {detail: 'account'});
+        this.dispatchEvent(clearAccId); 
+    }
     handleKeyUp(keyWord){
         
-        if(this.minSearch > keyWord.target.value.length){
-            this.showResult = 'false'; 
+        if(keyWord.target.value.length ===0){
+            this.handleClear(); 
+            return;   
+        }else if(this.minSearch > keyWord.target.value.length){
+
+            this.showResult = false; 
             return; 
-        }
+        } 
         if(this.searchTimeOut){
             clearTimeout(this.searchTimeOut);
         }
@@ -41,17 +51,18 @@ export default class AccountLookUp extends LightningElement {
              
          }, SEARCH_DELAY); 
     }
-accName; 
+accName;
+accId;  
     itemSelect(x){
-        const accId = x.currentTarget.dataset.recordid; 
+        this.accId = x.currentTarget.dataset.recordid; 
         this.accName = x.currentTarget.dataset.name;
          
-        const newAcc = new CustomEvent('newaccount', {detail: accId});
+        const newAcc = new CustomEvent('newaccount', {detail: this.accId});
         this.dispatchEvent(newAcc); 
          
 //!when the input wont clear we could try grabbing the input and setting it to '' 
   
-        // this.queryTerm = '';
+        //this.queryTerm = '';
         this.showResult = false; 
         
         
@@ -67,6 +78,6 @@ accName;
 
 //styling
     get getListBoxClass(){
-        return 'slds-listbox slds-listbox_vertical slds-dropdown slds-dropdown_fluid';
+        return 'slds-listbox slds-listbox_vertical slds-dropdown drop';
     }
 }

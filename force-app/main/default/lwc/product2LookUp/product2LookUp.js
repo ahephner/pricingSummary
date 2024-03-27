@@ -23,12 +23,23 @@ export default class Product2LookUp extends LightningElement {
                 console.log(result.error); 
             }
         }
+    handleClear(){
+        this.showResult = false; 
+        this.accName = ''
+        const clearProd = new CustomEvent('clearprod', {detail: 'product'});
+        this.dispatchEvent(clearProd); 
+    }
     handleKeyUp(keyWord){
         
+        if(keyWord.target.value.length === 0){
+            this.handleClear();
+            return
+        }
         if(this.minSearch > keyWord.target.value.length){
             this.showResult = 'false'; 
             return; 
         }
+
         if(this.searchTimeOut){
             clearTimeout(this.searchTimeOut);
         }

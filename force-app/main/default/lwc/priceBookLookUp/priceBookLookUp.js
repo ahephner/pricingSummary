@@ -23,10 +23,18 @@ export default class PriceBookLookUp extends LightningElement {
                 console.log(result.error); 
             }
         }
+    handleClear(){
+        this.showResult = false;
+        this.pbName = '';
+        const clearPriceBook = new CustomEvent('clearbookid', {detail: 'pricebook'});
+        this.dispatchEvent(clearPriceBook)
+    }
     handleKeyUp(keyWord){
-        
+        if(keyWord.target.value.length ===0){
+            this.handleClear(); 
+        }
         if(this.minSearch > keyWord.target.value.length){
-            this.showResult = 'false'; 
+            this.showResult = false; 
             return; 
         }
         if(this.searchTimeOut){
