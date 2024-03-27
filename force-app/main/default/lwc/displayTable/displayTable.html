@@ -80,26 +80,47 @@
         label='Maintain Floors' checked={enforceFloor} onchange={handleEnforce}
         message-toggle-active="" message-toggle-inactive=""></lightning-input>
         <lightning-helptext content="If checked and Unit Price is changed the floor price will reflect Floor Margin to Unit Price"></lightning-helptext>
-        <p>{userInform}</p>
-      </div> -->
+      </div> 
+      <p>{userInform}</p>-->
+      <template if:true={showFooter}>
+        <div class="slds-grid slds-m-bottom_xx-small">
+          <div class="slds-col slds-size_1-of-2">
+            <template if:true={changesMade}>
+              <p class="changedProduct">Changes made make sure to save!</p>
+            </template>
+          </div>
+          <div class="slds-col slds-size_1-of-2">
+            <lightning-button-group class="slds-float_right slds-m-top_x-small">
+              <lightning-button label="Apply All" variant="brand" onclick={applyAll}></lightning-button>
+              <!-- <lightning-button label="Refresh"></lightning-button> -->
+              <lightning-button label={editAllBTN} 
+                                variant="destructive"
+                                onclick={editAll}></lightning-button>
+      
+              <lightning-button label="Save" variant="brand" onclick={save}></lightning-button>
+            </lightning-button-group>
+          </div>
+
+        </div>
+    </template>
     <div class="slds-scrollable_y" style="height:350px; min-height:350px;">
     <table class="slds-table slds-table_cell-buffer slds-table_bordered slds-table_striped" aria-label="Example table of Opportunities with striped rows">
       <thead>
       <tr class="slds-line-height_reset">
       <th class="" scope="col">
-      <div class="slds-truncate" title="Opportunity Name">Pricebook - Entry</div>
+      <div class="slds-truncate" title="Pricebook - Entry">Pricebook - Entry</div>
       </th>
       <th class="" scope="col">
-      <div class="slds-truncate" title="Account Name">Cost</div>
+      <div class="slds-truncate" title="Cost">Cost</div>
       </th>
       <th class="" scope="col">
-      <div class="slds-truncate" title="Close Date">List Price</div>
+      <div class="slds-truncate" title="List Price">List Price</div>
       </th>
       <th class="" scope="col">
-      <div class="slds-truncate" title="Stage">List Margin</div>
+      <div class="slds-truncate" title="List Margin">List Margin</div>
       </th>
       <th class="" scope="col">
-      <div class="slds-truncate" title="Confidence">Hold Margin</div>
+      <div class="slds-truncate" title="Hold Margin">Hold Margin</div>
       </th>
       <!-- <th class="" scope="col">
       <div class="slds-truncate" title="Amount">Min Margin</div>
@@ -182,27 +203,7 @@
   </div>
   
   <div>
-      <template if:true={showFooter}>
-        <div class="slds-grid">
-          <div class="slds-col slds-size_1-of-2">
-            <lightning-button-group class="slds-float_right slds-m-top_x-small">
-              <lightning-button label="Apply All" variant="brand" onclick={applyAll}></lightning-button>
-              <!-- <lightning-button label="Save"></lightning-button> -->
-            </lightning-button-group>
-          </div>
-          <div class="slds-col slds-size_1-of-2">
-            <lightning-button-group class="slds-float_right slds-m-top_x-small">
-              <!-- <lightning-button label="Refresh"></lightning-button> -->
-              <lightning-button label={editAllBTN} 
-                                variant="destructive"
-                                onclick={editAll}></lightning-button>
-      
-              <lightning-button label="Save" variant="brand" onclick={save}></lightning-button>
-            </lightning-button-group>
-          </div>
 
-        </div>
-    </template>
     </div>
   </lightning-card>
 </template>

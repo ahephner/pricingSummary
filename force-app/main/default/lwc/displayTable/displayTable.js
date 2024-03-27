@@ -25,6 +25,7 @@ export default class DisplayTable extends LightningElement {
     averageMarginUp = 0;
     productCost; 
     userInform; 
+    changesMade = false; 
     @track fetchedData = []; 
     @api iAmSpinning(){
         this.foundProducts = false; 
@@ -58,14 +59,20 @@ export default class DisplayTable extends LightningElement {
                             readOnly: true,
                             btnText: 'Edit', 
                             btnBrand: 'brand',
-                            bookURL: `https://advancedturf--full.sandbox.lightning.force.com/lightning/r/Pricebook2/${x.Pricebook2Id}/view`,
-                            pbeURL:  `https://advancedturf--full.sandbox.lightning.force.com/lightning/r/PricebookEntry/${x.Id}/view`
+                            bookURL: `https://advancedturf.lightning.force.com/lightning/r/Pricebook2/${x.Pricebook2Id}/view`,
+                            pbeURL: `https://advancedturf.lightning.force.com/lightning/r/Product2/${x.Id}/view`
+                            //bookURL: `https://advancedturf--full.sandbox.lightning.force.com/lightning/r/Pricebook2/${x.Pricebook2Id}/view`,
+                            //pbeURL:  `https://advancedturf--full.sandbox.lightning.force.com/lightning/r/PricebookEntry/${x.Id}/view`
                         }
                     }); 
         
                     this.fetchedData = [...dataBack];
                     this.userInform = 'Searching Single Price Book'
                 }
+            }).then((x)=>{
+                console.log(1, this.fetchedData)
+               this.productCost = this.fetchedData[0]?.Product_Cost__c ?? 0; 
+               this.alertPriceUpdate(); 
             })
         }else if(this.accountId != ''){
             getBestPriceString({priceBooksAcc: this.accountpricebooks, priceField: this.priceSearchField, productId:this.productId, orderBy:this.apexOrderBy  })
@@ -92,14 +99,20 @@ export default class DisplayTable extends LightningElement {
                                 readOnly: true,
                                 btnText: 'Edit', 
                                 btnBrand: 'brand',
-                                bookURL: `https://advancedturf--full.sandbox.lightning.force.com/lightning/r/Pricebook2/${x.Pricebook2Id}/view`,
-                                pbeURL:  `https://advancedturf--full.sandbox.lightning.force.com/lightning/r/PricebookEntry/${x.Id}/view`
+                                bookURL: `https://advancedturf.lightning.force.com/lightning/r/Pricebook2/${x.Pricebook2Id}/view`,
+                                pbeURL: `https://advancedturf.lightning.force.com/lightning/r/Product2/${x.Id}/view`
+                                //bookURL: `https://advancedturf--full.sandbox.lightning.force.com/lightning/r/Pricebook2/${x.Pricebook2Id}/view`,
+                                //pbeURL:  `https://advancedturf--full.sandbox.lightning.force.com/lightning/r/PricebookEntry/${x.Id}/view`
                             }
                         }); 
             
                         this.fetchedData = [...dataBack];
                         this.userInform = 'Searching best price for this account'
                     }
+                }).then((x)=>{
+                    console.log(1, this.fetchedData)
+                   this.productCost = this.fetchedData[0]?.Product_Cost__c ?? 0; 
+                   this.alertPriceUpdate(); 
                 })
         }else if(this.accountId === ''){
             getProductPrice({productId: this.productId, priceField: this.priceSearchField, orderBy:this.apexOrderBy})
@@ -125,13 +138,16 @@ export default class DisplayTable extends LightningElement {
                             Product2Id: x.Product2Id,
                             btnText: 'Edit', 
                             btnBrand: 'brand',
-                            bookURL: `https://advancedturf--full.sandbox.lightning.force.com/lightning/r/Pricebook2/${x.Pricebook2Id}/view`,
-                            pbeURL:  `https://advancedturf--full.sandbox.lightning.force.com/lightning/r/PricebookEntry/${x.Id}/view`
+                            bookURL: `https://advancedturf.lightning.force.com/lightning/r/Pricebook2/${x.Pricebook2Id}/view`,
+                            pbeURL: `https://advancedturf.lightning.force.com/lightning/r/Product2/${x.Id}/view`
+                            //bookURL: `https://advancedturf--full.sandbox.lightning.force.com/lightning/r/Pricebook2/${x.Pricebook2Id}/view`,
+                            //pbeURL:  `https://advancedturf--full.sandbox.lightning.force.com/lightning/r/PricebookEntry/${x.Id}/view`
                         }
                     }); 
                     this.fetchedData = [...dataBack]; 
                     this.userInform = 'Searching all price books this product'
                 }).then((x)=>{
+                    console.log(1, this.fetchedData)
                    this.productCost = this.fetchedData[0]?.Product_Cost__c ?? 0; 
                    this.alertPriceUpdate(); 
                 })
@@ -153,6 +169,7 @@ export default class DisplayTable extends LightningElement {
         let index = this.fetchedData.findIndex(x => x.Id === evt.target.name);
         this.fetchedData[index].Hold_Margin__c = evt.target.checked; 
         this.fetchedData[index].isEdited = true;
+        this.changesMade = true;
     }
     // products
     editOne(evt){
@@ -175,6 +192,7 @@ export default class DisplayTable extends LightningElement {
             this.fetchedData[index].UnitPrice = evt.detail.value;
             this.fetchedData[index].isEdited = true;
             if(this.fetchedData[index].UnitPrice > 0){
+                this.changesMade = true; 
                 this.fetchedData[index].List_Margin__c = roundNum((((this.fetchedData[index].UnitPrice - this.fetchedData[index].Product_Cost__c)/this.fetchedData[index].UnitPrice)*100),2);
                      
                 }
@@ -214,6 +232,7 @@ export default class DisplayTable extends LightningElement {
 
     this.fetchedData[index].List_Margin__c = roundNum(evt.detail.value,2)
     this.delay = setTimeout(()=>{
+        this.changesMade = true;
         this.fetchedData[index].isEdited = true; 
         this.fetchedData[index].UnitPrice = roundNum(this.fetchedData[index].Product_Cost__c/(1- (this.fetchedData[index].List_Margin__c/100)), 2); 
     })
@@ -262,6 +281,7 @@ export default class DisplayTable extends LightningElement {
                 })
             );
         }
+        this.changesMade = false; 
     }).catch(error => {
                 console.log(error);
                 
@@ -333,8 +353,8 @@ export default class DisplayTable extends LightningElement {
    }
 
    //math functions; 
-   getAverage(arr){
-    let numb = arr.reduce((total, next)=> total + next.UnitPrice,0)/arr.length;
+   getAverage(arr, field){
+    let numb = arr.reduce((total, next)=> total + next[field],0)/arr.length;
     return numb; 
    }
 
@@ -346,15 +366,15 @@ export default class DisplayTable extends LightningElement {
         return (margin * 100); 
     }
    }
-
+   //marginCalc()
 
    //update the priceInfo component
    alertPriceUpdate(){
-    this.averageUnitPrice = roundNum(this.getAverage(this.fetchedData),2);
+    this.averageUnitPrice = roundNum(this.getAverage(this.fetchedData, 'UnitPrice'),2);
     //cost shuold be same across board 
     //price can be anything here using average
     //returnDecimalBoolean true/false do you want full number or dec.  
-    this.averageMarginUp = roundNum(this.marginCalc(this.productCost, this.averageUnitPrice, false),2)
+    this.averageMarginUp = roundNum(this.getAverage(this.fetchedData, 'List_Margin__c'),2)
     
     const averages = new CustomEvent('newaverage',{
         detail:{
