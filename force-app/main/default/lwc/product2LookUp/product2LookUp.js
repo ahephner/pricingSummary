@@ -29,6 +29,12 @@ export default class Product2LookUp extends LightningElement {
         const clearProd = new CustomEvent('clearprod', {detail: 'product'});
         this.dispatchEvent(clearProd); 
     }
+    //this is cleared from addPricebookEntry in pricing summary
+    @api
+    handleClearPBE(){
+        this.showResult = false;
+        this.accName = ''; 
+    }
     handleKeyUp(keyWord){
         
         if(keyWord.target.value.length === 0){

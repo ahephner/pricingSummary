@@ -34,9 +34,7 @@
               <!-- <th class="" scope="col">
               <div class="slds-truncate" title="Amount">Min Margin</div>
               </th> -->
-              <th class="" scope="col">
-              <div class="slds-truncate" title="Button"></div>
-              </th>
+
               </tr>
               </thead>
               <tbody>
@@ -46,54 +44,41 @@
                 </div>
                 </template> -->
                 <template if:true={foundProducts}>
-                  <!-- <template  for:each={fetchedData} for:item="x" for:index="index">
+                  <template  for:each={newProds} for:item="x" for:index="index">
         
-              <tr class="slds-hint-parent" key={x.Id}>
+              <tr class="slds-hint-parent" key={x.Product2Id}>
               <th data-label="Opportunity Name" scope="row">
-              <div class="slds-truncate names" title="Cloudhub">
-                <a href={x.bookURL} target="_blank" tabindex="-1" class="slds-m-bottom_x-small">{x.priceBook}</a>
-                <a href={x.pbeURL} target="_blank" tabindex="-1">{x.name}</a>
+              <div class="slds-truncate" title="Cloudhub">
+                {x.name}
               </div>
               </th>
               <td data-label="Account Name">
               <div class="slds-truncate" title="Cost">
-                <lightning-input type="number" name={x.Id} readonly 
+                <lightning-input type="number" name={x.Product2Id} readonly 
                                                 value={x.Product_Cost__c} formatter="currency" step="0.01"></lightning-input>
               </div>
               </td>
               <td data-label="Close Date">
               <div class="slds-truncate" title="List Price">
-                <lightning-input type="number" name={x.Id} read-only={x.readOnly} onchange={handleUnitPrice}
+                <lightning-input type="number" name={x.Product2Id} read-only={x.readOnly} onchange={handleUnitPrice}
                                                 value={x.UnitPrice} formatter="currency" step="0.01" ></lightning-input>
               </div>
               </td>
               <td data-label="Floor">
               <div class="slds-truncate" title="List Margin">
-                <lightning-input type="number" name={x.Id} read-only={x.readOnly} onchange={handleListMargin} 
+                <lightning-input type="number" name={x.Product2Id} read-only={x.readOnly} onchange={handleListMargin} 
                                                 value={x.List_Margin__c}  step="0.01"></lightning-input>
               </div>
               </td>
               <td data-label="Hold Margin">
                 <div class="slds-truncate" title="Hold Margin">
-                  <lightning-input type="checkbox" name={x.Id} disabled={x.readOnly} onchange={handleCheck} 
+                  <lightning-input type="checkbox" name={x.Product2Id} disabled={x.readOnly} onchange={handleCheck} 
                                                 checked={x.Hold_Margin__c}  ></lightning-input>
                 </div>
               </td>
-              <td data-label="Edit Button">
-              <div class="slds-truncate" title="btn">
-               <template if:true={x.canEdit}>
-                 <lightning-button 
-                  variant={x.btnBrand}
-                  label={x.btnText} 
-                  name={x.Id}
-                  onclick={editOne} 
-                ></lightning-button>
-               </template>
-              </div>
-              </td>
               </tr>
               
-            </template> -->
+            </template>
           </template>
               </tbody>
             </table>
