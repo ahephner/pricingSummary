@@ -7,6 +7,7 @@ import { updateRecord } from 'lightning/uiRecordApi';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import {roundNum} from 'c/programBuilderHelper';
 import ApplyAllModal from 'c/applyAllModal';
+
 export default class DisplayTable extends LightningElement {
      prods; 
     @api productId;
@@ -351,6 +352,8 @@ export default class DisplayTable extends LightningElement {
         console.error(error)
     })
    }
+
+
 
    //math functions; 
    getAverage(arr, field){

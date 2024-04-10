@@ -1,6 +1,7 @@
 import { LightningElement } from 'lwc';
 import singlePicklist from '@salesforce/apex/lwcHelper.getPickListValues'; 
 import LightningAlert from 'lightning/alert';
+import AddPriceBoookEntry from 'c/addPriceBookEntry'; 
 export default class PriceSummary extends LightningElement {
     hideFilter = true;
     limitValue = 'no';
@@ -103,6 +104,18 @@ export default class PriceSummary extends LightningElement {
         //     this.handleSearch()
         // }
     }
+    async addProduct(){
+        const result = await AddPriceBoookEntry.open({
+            size: 'medium',
+            description: 'Accessible description of modal\'s purpose',
+            content: 'Passed into content api',
+        }).then((res)=>{
+            console.log(res)
+        }).catch((error)=>{
+            console.error(error)
+        })
+       }
+
     handleClear(mess){
         let clearWhat = mess.detail; 
         switch(clearWhat){

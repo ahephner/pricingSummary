@@ -80,5 +80,8 @@ accName;
 //styling
     get getListBoxClass(){
         return 'slds-listbox slds-listbox_vertical slds-dropdown slds-dropdown_fluid';
+        //from the counter sale look up mark up
+        //span slds-media slds-listbox__option slds-listbox__option_entity slds-listbox__option_has-meta
+        //return 'slds-listbox slds-listbox_vertical slds-dropdown slds-dropdown_fluid slds-dropdown_length-with-icon-7'
     }
 }

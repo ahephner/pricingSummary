@@ -1,0 +1,106 @@
+<template>
+    <lightning-modal-header label="Add Products to Price Book"></lightning-modal-header>
+    <lightning-modal-body>
+        <!-- price book look up -->
+        <div class="slds-grid">
+            <div class="slds-col slds-size_1-of-3">
+                <c-price-book-look-up onnewpricebook={handlePriceBook}
+                onclearbookid={handleClear}></c-price-book-look-up>
+            </div>
+            <div class="slds-col slds-size_1-of-3">
+                <c-product2-look-up onnewproduct={handleProduct}
+                onclearprod={handleClear}></c-product2-look-up>
+            </div>
+        </div>
+        <div class="slds-scrollable_y" style="height:350px; min-height:350px;">
+            <table class="slds-table slds-table_cell-buffer slds-table_bordered slds-table_striped" aria-label="Example table of Opportunities with striped rows">
+              <thead>
+              <tr class="slds-line-height_reset">
+              <th class="" scope="col">
+              <div class="slds-truncate" title="Pricebook - Entry">Pricebook - Entry</div>
+              </th>
+              <th class="" scope="col">
+              <div class="slds-truncate" title="Cost">Cost</div>
+              </th>
+              <th class="" scope="col">
+              <div class="slds-truncate" title="List Price">List Price</div>
+              </th>
+              <th class="" scope="col">
+              <div class="slds-truncate" title="List Margin">List Margin</div>
+              </th>
+              <th class="" scope="col">
+              <div class="slds-truncate" title="Hold Margin">Hold Margin</div>
+              </th>
+              <!-- <th class="" scope="col">
+              <div class="slds-truncate" title="Amount">Min Margin</div>
+              </th> -->
+              <th class="" scope="col">
+              <div class="slds-truncate" title="Button"></div>
+              </th>
+              </tr>
+              </thead>
+              <tbody>
+                <!-- <template if:false={foundProducts}>
+                  <div class="exampleHolder">
+                    <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+                </div>
+                </template> -->
+                <template if:true={foundProducts}>
+                  <!-- <template  for:each={fetchedData} for:item="x" for:index="index">
+        
+              <tr class="slds-hint-parent" key={x.Id}>
+              <th data-label="Opportunity Name" scope="row">
+              <div class="slds-truncate names" title="Cloudhub">
+                <a href={x.bookURL} target="_blank" tabindex="-1" class="slds-m-bottom_x-small">{x.priceBook}</a>
+                <a href={x.pbeURL} target="_blank" tabindex="-1">{x.name}</a>
+              </div>
+              </th>
+              <td data-label="Account Name">
+              <div class="slds-truncate" title="Cost">
+                <lightning-input type="number" name={x.Id} readonly 
+                                                value={x.Product_Cost__c} formatter="currency" step="0.01"></lightning-input>
+              </div>
+              </td>
+              <td data-label="Close Date">
+              <div class="slds-truncate" title="List Price">
+                <lightning-input type="number" name={x.Id} read-only={x.readOnly} onchange={handleUnitPrice}
+                                                value={x.UnitPrice} formatter="currency" step="0.01" ></lightning-input>
+              </div>
+              </td>
+              <td data-label="Floor">
+              <div class="slds-truncate" title="List Margin">
+                <lightning-input type="number" name={x.Id} read-only={x.readOnly} onchange={handleListMargin} 
+                                                value={x.List_Margin__c}  step="0.01"></lightning-input>
+              </div>
+              </td>
+              <td data-label="Hold Margin">
+                <div class="slds-truncate" title="Hold Margin">
+                  <lightning-input type="checkbox" name={x.Id} disabled={x.readOnly} onchange={handleCheck} 
+                                                checked={x.Hold_Margin__c}  ></lightning-input>
+                </div>
+              </td>
+              <td data-label="Edit Button">
+              <div class="slds-truncate" title="btn">
+               <template if:true={x.canEdit}>
+                 <lightning-button 
+                  variant={x.btnBrand}
+                  label={x.btnText} 
+                  name={x.Id}
+                  onclick={editOne} 
+                ></lightning-button>
+               </template>
+              </div>
+              </td>
+              </tr>
+              
+            </template> -->
+          </template>
+              </tbody>
+            </table>
+          </div>
+    </lightning-modal-body>
+    <lightning-modal-footer>
+        <lightning-button label="Cancel" onclick={handleClose}></lightning-button>
+        <lightning-button label="Save and Close" onclick={handleSave}></lightning-button>
+    </lightning-modal-footer>
+</template>
