@@ -1,4 +1,4 @@
-import { LightningElement, wire, track } from 'lwc';
+import { LightningElement, wire, track, api } from 'lwc';
 import getBooks from '@salesforce/apex/lwcHelper.pricebookLookUp';
 const SEARCH_DELAY = 500;
 const REGEX_SOSL_RESERVED = /(\?|&|\||!|\{|\}|\[|\]|\(|\)|\^|~|\*|:|"|\+|\\)/g;
@@ -11,7 +11,7 @@ export default class PriceBookLookUp extends LightningElement {
     @track selectedPB = [];
     loading = true; 
     showResult = false; 
-
+    @api styletype; 
     @wire(getBooks,{searchTerm:'$queryTerm'})
         wiredList(result){
             if(result.data){
@@ -53,8 +53,9 @@ pbName;
     itemSelect(x){
         const pbId = x.currentTarget.dataset.recordid; 
         this.pbName = x.currentTarget.dataset.name;
-         
-        const newPB = new CustomEvent('newpricebook', {detail: pbId});
+        const info = {id: pbId,
+                     name: this.pbName}
+        const newPB = new CustomEvent('newpricebook', {detail: info});
         this.dispatchEvent(newPB); 
          
 //!when the input wont clear we could try grabbing the input and setting it to '' 

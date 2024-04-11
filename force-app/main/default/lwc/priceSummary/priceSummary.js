@@ -2,6 +2,8 @@ import { LightningElement } from 'lwc';
 import singlePicklist from '@salesforce/apex/lwcHelper.getPickListValues'; 
 import LightningAlert from 'lightning/alert';
 import AddPriceBoookEntry from 'c/addPriceBookEntry'; 
+import savePBE from '@salesforce/apex/getPriceBooks.savePBE';
+import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 export default class PriceSummary extends LightningElement {
     hideFilter = true;
     limitValue = 'no';
@@ -11,7 +13,8 @@ export default class PriceSummary extends LightningElement {
     primaryCategory;   
     primCat = 'All';
     priceBookId; 
-    
+    priceBookDropStyle = 'slds-listbox slds-listbox_vertical slds-dropdown drop'
+
     field = 'UnitPrice'; 
     connectedCallback(){
         singlePicklist({objName:'Product2', fieldAPI:'Primary_Category__c'})
@@ -110,7 +113,44 @@ export default class PriceSummary extends LightningElement {
             description: 'Accessible description of modal\'s purpose',
             content: 'Passed into content api',
         }).then((res)=>{
-            console.log(res)
+            const recordInputs = res.slice().map(draft =>{
+
+                let Pricebook2Id = draft.Pricebook2Id;
+                let Product2Id = draft.Product2Id; 
+                let UseStandardPrice = false; 
+                let IsActive = draft.IsActive;
+                let UnitPrice = draft.UnitPrice;
+                let List_Margin__c = draft.List_Margin__c;
+                let Hold_Margin__c = draft.Hold_Margin__c;
+                const fields = {Pricebook2Id, Product2Id, UseStandardPrice, IsActive, UnitPrice, List_Margin__c, Hold_Margin__c}
+        
+            return fields;
+            })
+        
+            savePBE({entries: recordInputs})
+            .then((res)=>{
+                if(res === 'success'){
+                    this.dispatchEvent(
+                        new ShowToastEvent({
+                            title: 'Success',
+                            message: 'Ship It!',
+                            variant: 'success'
+                        })
+                    );
+                }
+                this.changesMade = false; 
+            }).catch(error => {
+                        console.log(error);
+                        
+                        // Handle error
+                        this.dispatchEvent(
+                            new ShowToastEvent({
+                                title: 'Margin Error',
+                                message: error.body.output.errors[0].message,
+                                variant: 'error'
+                            })
+                        )
+                    })
         }).catch((error)=>{
             console.error(error)
         })
@@ -141,7 +181,8 @@ export default class PriceSummary extends LightningElement {
         }
     }
     handlePriceBook(mess){
-        this.priceBookId = mess.detail; 
+        //mess.id = id mess.name = pricebook name
+        this.priceBookId = mess.detail.id; 
         
     }
     handlePrimCat(x){

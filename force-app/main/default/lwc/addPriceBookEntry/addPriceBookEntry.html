@@ -3,16 +3,33 @@
     <lightning-modal-body>
         <!-- price book look up -->
         <div class="slds-grid">
+<!-- Step One select pricebook -->
+          <template if:false={pricebookFound}>
+            <p class="slds-col slds-size_1-of-3">What Pricebook to add products to</p>
             <div class="slds-col slds-size_1-of-3">
-                <c-price-book-look-up onnewpricebook={handlePriceBook}
-                onclearbookid={handleClear}></c-price-book-look-up>
+              <c-price-book-look-up onnewpricebook={handlePriceBook}
+                                    onclearbookid={handleClear}
+                                    styletype={priceBookDropStyle}></c-price-book-look-up>
+          </div>
+          </template>
+<!-- Step 2 select products -->
+            <template if:true={pricebookFound}>
+              <div class="slds-col slds-size_1-of-3">
+                <lightning-input 
+                  type="text"
+                  label="Products will be added to"
+                  value={priceBookName}
+                  readonly
+                ></lightning-input>
             </div>
-            <div class="slds-col slds-size_1-of-3">
+              <div class="slds-col slds-size_1-of-3">
                 <c-product2-look-up onnewproduct={handleProduct}
                 onclearprod={handleClear}></c-product2-look-up>
-            </div>
+            </div>  
+            </template>
         </div>
-        <div class="slds-scrollable_y" style="height:350px; min-height:350px;">
+        <template if:true={pricebookFound}>
+          <div class="slds-scrollable_y" style="height:350px; min-height:350px;">
             <table class="slds-table slds-table_cell-buffer slds-table_bordered slds-table_striped" aria-label="Example table of Opportunities with striped rows">
               <thead>
               <tr class="slds-line-height_reset">
@@ -83,9 +100,11 @@
               </tbody>
             </table>
           </div>
+        </template>
+
     </lightning-modal-body>
     <lightning-modal-footer>
-        <lightning-button label="Cancel" onclick={handleClose}></lightning-button>
+        <lightning-button label="Cancel" onclick={checkClose}></lightning-button>
         <lightning-button label="Save and Close" onclick={handleSave}></lightning-button>
     </lightning-modal-footer>
 </template>
