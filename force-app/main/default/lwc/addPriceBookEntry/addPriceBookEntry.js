@@ -109,7 +109,7 @@ export default class AddPriceBookEntry extends LightningModal {
 
  //checkbox
     handleCheck(evt){
-        let index = this.newProds.findIndex(x => x.Id === evt.target.name);
+        let index = this.newProds.findIndex(x => x.Product2Id === evt.target.name);
         this.newProds[index].Hold_Margin__c = evt.target.checked; 
         this.newProds[index].isEdited = true;
     }

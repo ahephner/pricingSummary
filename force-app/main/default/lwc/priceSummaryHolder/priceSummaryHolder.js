@@ -1,5 +1,5 @@
 import { LightningElement, track } from 'lwc';
-import getPriceBooks from '@salesforce/apex/getPriceBooks.getPriceBookIds';
+import getPriceBooks from '@salesforce/apex/omsCPQAPEX.getPriorityPriceBooks';
 
 export default class PriceSummaryHolder extends LightningElement {
     acctPriceBooks = [];
@@ -22,17 +22,24 @@ export default class PriceSummaryHolder extends LightningElement {
     foundProducts = false;
     async newAccountGetPB(event){
         //no double values and assign the standard price book up front; 
-        let list = new Set(["01s410000077vSKAAY"])
+        let list = new Set()
         //let list = new Set(); 
         let data = await getPriceBooks({accountId: event.detail}); 
-        //console.table(this.acctPriceBooks);
-        if(data.length>=1 && data != undefined){
-            for(let i = 0; i<data.length;i++){
-                list.add(data[i].Pricebook2Id);
+        if(data){
+            let standardPricebook = {Pricebook2Id: '01s410000077vSKAAY',Priority:6, PriceBook2:{Name:'Standard'} }
+            let order = [...data, standardPricebook].filter((x)=>x.Priority!=undefined).sort((a,b)=>{
+                return a.Priority - b.Priority; 
+            })
+
+            if(order.length>=1 && data != undefined){
+                for(let i = 0; i<order.length;i++){
+                    list.add(order[i].Pricebook2Id);
+                }
+                console.log('updated pricebook ids ' , order)
             }
         }
+
         this.acctPriceBooks = [...list];
-        //console.log(this.acctPriceBooks)
     }
     //this function recieves and transmits the search prompts here
     //the reason for the timeout is that the lwc:spread function has not native async when built 2/12/24 or at least this dev was unaware. 

@@ -1,6 +1,9 @@
 import { LightningElement,api, track } from 'lwc';
 import getProductPrice from '@salesforce/apex/getPriceBooks.getProductPrice';
-import getBestPriceString from '@salesforce/apex/getPriceBooks.getBestPriceString';
+//best price 
+//import getBestPriceString from '@salesforce/apex/getPriceBooks.getBestPriceString';
+//priority price
+import allPriceBooks from '@salesforce/apex/getPriceBooks.allPriceBooks';
 import checkPriceBooks from '@salesforce/apex/getPriceBooks.checkPriceBooks';
 import savePBE from '@salesforce/apex/getPriceBooks.savePBE';
 import { updateRecord } from 'lightning/uiRecordApi';
@@ -76,7 +79,7 @@ export default class DisplayTable extends LightningElement {
                this.alertPriceUpdate(); 
             })
         }else if(this.accountId != ''){
-            getBestPriceString({priceBooksAcc: this.accountpricebooks, priceField: this.priceSearchField, productId:this.productId, orderBy:this.apexOrderBy  })
+            allPriceBooks({priceBookIds: this.accountpricebooks, productId:this.productId})
                 .then((res)=>{
                     if(res){
                         let dataBack = res.map(x=>{
