@@ -1,8 +1,13 @@
 import { LightningElement, wire, track, api } from 'lwc';
+import { getRecord } from 'lightning/uiRecordApi';
 import getBooks from '@salesforce/apex/lwcHelper.pricebookLookUp';
+import ProfileName from '@salesforce/schema/User.Profile.Name'
+import Id from '@salesforce/user/Id';
 const SEARCH_DELAY = 500;
 const REGEX_SOSL_RESERVED = /(\?|&|\||!|\{|\}|\[|\]|\(|\)|\^|~|\*|:|"|\+|\\)/g;
 export default class PriceBookLookUp extends LightningElement {
+    //get current user roll
+    profileName; 
     queryTerm;
     //MAKE THIS 5 BEFORE SENDING TO PROD
     minSearch = 3;
@@ -12,7 +17,15 @@ export default class PriceBookLookUp extends LightningElement {
     loading = true; 
     showResult = false; 
     @api styletype; 
-    @wire(getBooks,{searchTerm:'$queryTerm'})
+    @wire(getRecord, { recordId: Id, fields: [ProfileName] })
+    userDetails({ error, data }) {
+        if (error) {
+            this.error = error;
+        } else if (data) {
+            this.profileName = data.fields.Profile.value.fields.Name.value;
+        }
+    }
+    @wire(getBooks,{searchTerm:'$queryTerm', profileName: '$profileName'})
         wiredList(result){
             if(result.data){
                 this.results = result.data;
@@ -30,6 +43,7 @@ export default class PriceBookLookUp extends LightningElement {
         this.dispatchEvent(clearPriceBook)
     }
     handleKeyUp(keyWord){
+        //console.log(this.profileName)
         if(keyWord.target.value.length ===0){
             this.handleClear(); 
         }

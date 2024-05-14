@@ -5,7 +5,9 @@
         <div class="slds-grid">
 <!-- Step One select pricebook -->
           <template if:false={pricebookFound}>
-            <p class="slds-col slds-size_1-of-3">What Pricebook to add products to</p>
+            <p class="slds-col slds-size_1-of-3">What Pricebook to add products to.</p> 
+            <br/>
+            <i>Note you can only add to Price Books you own</i>
             <div class="slds-col slds-size_1-of-3">
               <c-price-book-look-up onnewpricebook={handlePriceBook}
                                     onclearbookid={handleClear}
