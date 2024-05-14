@@ -1,16 +1,18 @@
+//test_getPriceBooks => test class
 public with sharing class getPriceBooks {
     @AuraEnabled(cacheable=true)
   public static list<buyergrouppricebook> getPriceBookIds(string accountId){
         list<String> multiGroups = new list<string>();        
-            for(buyergroupmember x: [select buyergroupid, name from buyergroupmember where buyerid =: accountId ]){
+            for(buyergroupmember x: [select buyergroupid, name, priority__c from buyergroupmember where buyerid =: accountId ]){
+                system.debug('x '+ x);
                 multiGroups.add(x.buyergroupid);
             }
             list<buyergrouppricebook> pricebookIds = new list<buyergrouppricebook>();
             if(multiGroups.size()>0){
                 
                 //limit to active price book
-                for(buyergrouppricebook y: [select Pricebook2Id, Pricebook2.Name, Name from buyergrouppricebook where buyergroupid IN: (multiGroups)]){
-                    system.debug('y '+ y); 
+                for(buyergrouppricebook y: [select Pricebook2Id, Pricebook2.Name, Name,Priority from buyergrouppricebook where buyergroupid IN: (multiGroups)]){
+                   system.debug('y '+ y); 
                     
                     pricebookIds.add(y);
                 }
@@ -20,19 +22,60 @@ public with sharing class getPriceBooks {
     }
     
     @auraEnabled(cacheable=true)
-    public static list<pricebookentry> getBestPrice(list<string> priceBookIds, string productId, string fieldType){
+    public static list<pricebookentry> getBestPrice(list<string> priceBookIds, string productId){
         list<string> pb = priceBookIds; 
-        list<pricebookentry> bestPrice = [select Pricebook2.Name,Pricebook2.IsStandard, UnitPrice  from PricebookEntry 
+        list<pricebookentry> bestPrice = [select Id, Pricebook2Id,Pricebook2.Name,Pricebook2.IsStandard, 
+                                          UnitPrice, Floor_Price__c, Level_1_UserView__c,Level_One_Margin__c, Level_2_UserView__c,Level_2_Margin__c,
+                                          Product_Cost__c from PricebookEntry 
                                           where IsActive = true and Pricebook2Id in: (pb) and Product2ID=: productId 
                                          ORDER BY UnitPrice ASC limit 1];
         return bestPrice; 
     }
     
+        @auraEnabled(cacheable=true)
+    public static list<pricebookentry> priorityBestPrice(list<string> priceBookIds, string productId){
+        list<pricebookentry> priorityPrice = new list<pricebookentry>();
+        for(string x:priceBookIds){
+              priorityPrice = [select Id, Pricebook2Id,Pricebook2.Name,Pricebook2.IsStandard, 
+                                          UnitPrice, Floor_Price__c, Level_1_UserView__c,Level_One_Margin__c, Level_2_UserView__c,Level_2_Margin__c,
+                                          Product_Cost__c from PricebookEntry 
+                                          where IsActive = true and Pricebook2Id =:x and Product2ID=: productId];  
+             
+            if(priorityPrice.size()==0){
+            system.debug(priorityPrice.size());
+                continue; 
+            }else{
+                break;
+            }
+        }
+
+        return priorityPrice; 
+    }
+    //Pricing Summary tool. 
+    //All price book entries based on the price books available to an account. The pricebook id's are assigned in order in the lwc priceSummaryHolder.  
+    @auraEnabled(cacheable=true)
+    public static list<pricebookentry> allPriceBooks(list<string> priceBookIds, string productId){
+        list<pricebookentry> priorityPrice = new list<pricebookentry>();
+        for(string x:priceBookIds){
+            system.debug('x => '+ x);
+            system.debug('productId => '+productId); 
+        	list<pricebookentry> single = [select Id, Pricebook2Id, Product2.Name, ProductCode, Price_Book_Name__c, UnitPrice, Product_Cost__c, Floor_Price__c,
+                               		List_Margin__c, Hold_Margin__c, Floor_Margin__c, Min_Margin__c, Product2Id from pricebookentry
+                                	where IsActive = true and Pricebook2Id =:x and Product2ID=: productId];
+            if(single.size()>0){
+            	priorityPrice.add(single[0]);    
+            } 
+             
+        }
+
+        return priorityPrice; 
+    }
+    //order by best price model for pricingSummary app 
         @auraEnabled
     public static list<pricebookentry> getBestPriceString(list<string> priceBooksAcc, string priceField, string productId, string orderBy){
         list<string> pb = priceBooksAcc; 
         string find = 'select Floor_Price__c, Level_One_Margin__c, Level_1_UserView__c, Level_2_Margin__c, Level_2_UserView__c,Product2.Name, Product2.ProductCode, ' 
-           + 'Pricebook2Id, UnitPrice, Product_Cost__c, Price_Book_Name__c,Name, Pricebook2.IsStandard,ProductCode, Product2Id,'
+           + 'Pricebook2Id, UnitPrice, Product_Cost__c, Price_Book_Name__c,Name, Pricebook2.IsStandard,ProductCode, Product2Id, List_Margin__c,List_Margin_Calculated__c, Hold_Margin__c,'
            + 'Floor_Margin__c, Min_Margin__c from PricebookEntry'
         + ' where IsActive = true and Pricebook2Id IN (\''+String.join(priceBooksAcc,'\',\'')+'\') and  Product2ID=\''+ productId+ '\''; 
         find += orderBy;     
@@ -48,7 +91,7 @@ public with sharing class getPriceBooks {
     public static list<pricebookentry> getProductPrice(string productId, string priceField,  string orderBy){
      
         string find = 'select Floor_Price__c, Level_One_Margin__c, Level_1_UserView__c, Level_2_Margin__c, Level_2_UserView__c,Product2.Name, Product2.ProductCode, ' 
-           + 'Pricebook2Id, UnitPrice, Product_Cost__c, Price_Book_Name__c,Name, Pricebook2.IsStandard,ProductCode, Product2Id,'
+           + 'Pricebook2Id, UnitPrice, Product_Cost__c, Price_Book_Name__c,Name, Pricebook2.IsStandard,ProductCode, Product2Id, List_Margin__c,List_Margin_Calculated__c, Hold_Margin__c,'
            + 'Floor_Margin__c, Min_Margin__c from PricebookEntry'
         + ' where IsActive = true and Product2ID=\''+ productId+ '\''; 
         find += orderBy;     
@@ -60,16 +103,32 @@ public with sharing class getPriceBooks {
         list<pricebookentry> bestPrice = Database.query(find);
         return bestPrice; 
     }
+    
     @auraEnabled
-    public static string savePBE(list<pricebookentry> entries, list<product2> products){
+    public static list<pricebookentry> checkPriceBooks(string pricebook, string productId, string orderBy){
+     
+        string find = 'select Floor_Price__c, Level_One_Margin__c, Level_1_UserView__c, Level_2_Margin__c, Level_2_UserView__c,Product2.Name, Product2.ProductCode, ' 
+           + 'Pricebook2Id, UnitPrice, Product_Cost__c, Price_Book_Name__c,Name, Pricebook2.IsStandard,ProductCode, Product2Id, List_Margin__c,List_Margin_Calculated__c, Hold_Margin__c, '
+           + 'Floor_Margin__c, Min_Margin__c, Agency_Product__c from PricebookEntry'
+        + ' where IsActive = true and Pricebook2Id =\''+ pricebook + '\''; 
+        if(!string.isBlank(productId)){
+            find += ' and Product2ID=\''+ productId+ '\''; 
+        }
+        find += orderBy;     
+        system.debug(find); 
+        //if(limitor> 0){
+          //  find += 'limit '+= limitor
+        //}
+
+        list<pricebookentry> check = Database.query(find);
+        return check; 
+    }
+    @auraEnabled
+    public static string savePBE(list<pricebookentry> entries){
         string messBack;
         try{
             if(entries.size()>0){
-            	update entries;    
-            }
-            
-            if(products.size()>0){
-                update products;
+            	upsert entries;    
             }
             messBack = 'success'; 
         }catch(exception e){
@@ -108,4 +167,24 @@ public with sharing class getPriceBooks {
         wrapBack.oppLines = oppLineItems; 
         return wrapBack;
     }
+    ///TO SAVE PBE AND UPDATE PRODUCT2 AT ONE TIME. Records organized in lwc
+    // @auraEnabled
+// public static string savePBE(list<pricebookentry> entries, list<product2> products){
+//     string messBack;
+//     try{
+//         if(entries.size()>0){
+//             update entries;    
+//         }
+        
+//         if(products.size()>0){
+//             update products;
+//         }
+//         messBack = 'success'; 
+//     }catch(exception e){
+//         system.debug(e);
+//       messBack = string.valueof(e);
+//     }
+
+//     return messBack; 
+//}
 }

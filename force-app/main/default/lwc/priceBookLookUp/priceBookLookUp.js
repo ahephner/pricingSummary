@@ -1,8 +1,13 @@
-import { LightningElement, wire, track } from 'lwc';
+import { LightningElement, wire, track, api } from 'lwc';
+import { getRecord } from 'lightning/uiRecordApi';
 import getBooks from '@salesforce/apex/lwcHelper.pricebookLookUp';
+import ProfileName from '@salesforce/schema/User.Profile.Name'
+import Id from '@salesforce/user/Id';
 const SEARCH_DELAY = 500;
 const REGEX_SOSL_RESERVED = /(\?|&|\||!|\{|\}|\[|\]|\(|\)|\^|~|\*|:|"|\+|\\)/g;
 export default class PriceBookLookUp extends LightningElement {
+    //get current user roll
+    profileName; 
     queryTerm;
     //MAKE THIS 5 BEFORE SENDING TO PROD
     minSearch = 3;
@@ -11,8 +16,16 @@ export default class PriceBookLookUp extends LightningElement {
     @track selectedPB = [];
     loading = true; 
     showResult = false; 
-
-    @wire(getBooks,{searchTerm:'$queryTerm'})
+    @api styletype; 
+    @wire(getRecord, { recordId: Id, fields: [ProfileName] })
+    userDetails({ error, data }) {
+        if (error) {
+            this.error = error;
+        } else if (data) {
+            this.profileName = data.fields.Profile.value.fields.Name.value;
+        }
+    }
+    @wire(getBooks,{searchTerm:'$queryTerm', profileName: '$profileName'})
         wiredList(result){
             if(result.data){
                 this.results = result.data;
@@ -30,6 +43,7 @@ export default class PriceBookLookUp extends LightningElement {
         this.dispatchEvent(clearPriceBook)
     }
     handleKeyUp(keyWord){
+        //console.log(this.profileName)
         if(keyWord.target.value.length ===0){
             this.handleClear(); 
         }
@@ -53,8 +67,9 @@ pbName;
     itemSelect(x){
         const pbId = x.currentTarget.dataset.recordid; 
         this.pbName = x.currentTarget.dataset.name;
-         
-        const newPB = new CustomEvent('newpricebook', {detail: pbId});
+        const info = {id: pbId,
+                     name: this.pbName}
+        const newPB = new CustomEvent('newpricebook', {detail: info});
         this.dispatchEvent(newPB); 
          
 //!when the input wont clear we could try grabbing the input and setting it to '' 
