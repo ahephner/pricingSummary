@@ -30,9 +30,17 @@ export default class DisplayTable extends LightningElement {
     productCost; 
     userInform; 
     changesMade = false; 
+    badPricing  = false;
+    hasRendered = false;  
     @track fetchedData = []; 
     @api iAmSpinning(){
         this.foundProducts = false; 
+    }
+
+    renderedCallback(){
+        if(this.fetchedData.length>0 && this.hasRendered){
+            this.initPriceCheck(); 
+        }
     }
     //get product info 
     //send averages back home
@@ -60,6 +68,7 @@ export default class DisplayTable extends LightningElement {
                             Floor_Margin__c: x.Floor_Margin__c,
                             Min_Margin__c: x.Min_Margin__c === undefined ? x.Floor_Margin__c : x.Min_Margin__c,
                             Product2Id: x.Product2Id,
+                            goodPrice: x.Floor_Price__c <= x.UnitPrice? true:false,
                             readOnly: true,
                             btnText: 'Edit', 
                             btnBrand: 'brand',
@@ -94,12 +103,13 @@ export default class DisplayTable extends LightningElement {
                                 priceBook: x.Price_Book_Name__c,
                                 UnitPrice: x.UnitPrice,
                                 Product_Cost__c: x.Product_Cost__c,
-                                Floor_Price__c: x.Floor_Price__c, 
+                                Floor_Price__c: x.Floor_Price__c,
                                 List_Margin__c: x.List_Margin__c,
                                 Hold_Margin__c: x.Hold_Margin__c,
                                 Floor_Margin__c: x.Floor_Margin__c,
                                 Min_Margin__c: x.Min_Margin__c === undefined ? x.Floor_Margin__c : x.Min_Margin__c,
                                 Product2Id: x.Product2Id,
+                                goodPrice: x.Floor_Price__c <= x.UnitPrice? true:false,
                                 readOnly: true,
                                 btnText: 'Edit', 
                                 btnBrand: 'brand',
@@ -140,6 +150,7 @@ export default class DisplayTable extends LightningElement {
                             Min_Margin__c: x.Min_Margin__c === undefined ? x.Floor_Margin__c : x.Min_Margin__c,
                             readOnly: true,
                             Product2Id: x.Product2Id,
+                            goodPrice: x.Floor_Price__c <= x.UnitPrice? true:false, 
                             btnText: 'Edit', 
                             btnBrand: 'brand',
                             bookURL: `https://advancedturf.lightning.force.com/lightning/r/Pricebook2/${x.Pricebook2Id}/view`,
@@ -151,17 +162,37 @@ export default class DisplayTable extends LightningElement {
                     this.fetchedData = [...dataBack]; 
                     this.userInform = 'Searching all price books this product'
                 }).then((x)=>{
-                    console.log(1, this.fetchedData)
+                //console.log(1, this.fetchedData)
                    this.productCost = this.fetchedData[0]?.Product_Cost__c ?? 0; 
                    this.alertPriceUpdate(); 
                 })
         }
-     
-            this.foundProducts = true;
-            this.showFooter = true; 
+        this.foundProducts = true;
+        this.showFooter = true; 
+        this.hasRendered=true; 
       
         
  
+    }
+    fixFloorViolations(){
+        let indexArr = [];
+        this.fetchedData.forEach((ele, index)=>{
+            if(ele.goodPrice===false){
+                indexArr.push(index);
+            }
+        })
+        if(indexArr.length>0){
+            for(const i of indexArr.values()){
+                this.fetchedData[i].UnitPrice = this.fetchedData[i].Floor_Price__c
+                this.fetchedData[i].List_Margin__c = this.fetchedData[i].Floor_Margin__c
+                this.fetchedData[i].goodPrice = true; 
+                this.template.querySelector(`[data-price="${this.fetchedData[i].Id}"]`).style.color ="black";
+                this.template.querySelector(`[data-margin="${this.fetchedData[i].Id}"]`).style.color ="black";
+            }
+        }
+        this.fetchedData = [...this.fetchedData]
+        this.badPricing = false; 
+        this.changesMade = true; 
     }
     handleEnforce(evt){
         this.enforceFloor = evt.target.checked; 
@@ -198,7 +229,7 @@ export default class DisplayTable extends LightningElement {
             if(this.fetchedData[index].UnitPrice > 0){
                 this.changesMade = true; 
                 this.fetchedData[index].List_Margin__c = roundNum((((this.fetchedData[index].UnitPrice - this.fetchedData[index].Product_Cost__c)/this.fetchedData[index].UnitPrice)*100),2);
-                     
+                this.handleWarning(this.fetchedData[index])
                 }
         },800)
     }
@@ -239,6 +270,7 @@ export default class DisplayTable extends LightningElement {
         this.changesMade = true;
         this.fetchedData[index].isEdited = true; 
         this.fetchedData[index].UnitPrice = roundNum(this.fetchedData[index].Product_Cost__c/(1- (this.fetchedData[index].List_Margin__c/100)), 2); 
+        this.handleWarning(this.fetchedData[index])
     })
    }
    
@@ -257,6 +289,40 @@ export default class DisplayTable extends LightningElement {
     })
    }
 
+   //floor mins
+   handleWarning(prod){
+    let unitPrice = Number(prod.UnitPrice)
+    let index = this.fetchedData.findIndex(x=> x.Id === prod.Id)
+    if(prod.Floor_Price__c > unitPrice){
+        
+        this.fetchedData[index].goodPrice = false;
+        this.badPricing = true; 
+        this.template.querySelector(`[data-price="${prod.Id}"]`).style.color ="red";
+        this.template.querySelector(`[data-margin="${prod.Id}"]`).style.color ="red";
+    }else if(!prod.goodPrice && prod.Floor_Price__c <= unitPrice){
+        
+        this.fetchedData[index].goodPrice = true;
+        this.template.querySelector(`[data-price="${prod.Id}"]`).style.color ="black";
+        this.template.querySelector(`[data-margin="${prod.Id}"]`).style.color ="black";
+        this.badPricing = this.fetchedData.filter(x=>x.goodPrice ===false).length>0? true:false; 
+    }
+
+   }
+   initPriceCheck(){
+  
+    this.hasRendered = false; 
+    for(let i=0; i<this.fetchedData.length; i++){
+        let id = this.fetchedData[i].Id;
+        let floor = this.fetchedData[i].Floor_Price__c;
+        let unitPrice = this.fetchedData[i].UnitPrice;
+        if(floor>unitPrice){
+            this.badPricing = true; 
+            this.fetchedData[i].goodPrice = false; 
+            this.template.querySelector(`[data-price="${id}"]`).style.color ="red";
+            this.template.querySelector(`[data-margin="${id}"]`).style.color ="red";
+        }
+    }
+   }
    //need a save
    saveRecords = [];
    product = [];
@@ -392,4 +458,3 @@ export default class DisplayTable extends LightningElement {
     this.dispatchEvent(averages);
    }
 }
-
