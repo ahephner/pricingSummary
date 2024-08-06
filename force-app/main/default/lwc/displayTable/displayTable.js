@@ -10,7 +10,7 @@ import { updateRecord } from 'lightning/uiRecordApi';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import {roundNum} from 'c/programBuilderHelper';
 import ApplyAllModal from 'c/applyAllModal';
-
+//import{ refreshApex } from '@salesforce/apex';
 export default class DisplayTable extends LightningElement {
      prods; 
     @api productId;
@@ -456,5 +456,6 @@ export default class DisplayTable extends LightningElement {
     })
 
     this.dispatchEvent(averages);
+    //return refreshApex(this.fetchedData)
    }
 }

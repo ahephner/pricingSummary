@@ -56,7 +56,8 @@ public class test_getPriceBooks {
         priceBookIds.add(pb3.id);
         test.StartTest();
         	list<buyergrouppricebook> priceBooks = getPriceBooks.getPriceBookIds(cust.Id);
-        	list<pricebookentry> pricing =  getPriceBooks.getBestPrice(priceBookIds, prod.Id); 
+        	list<pricebookentry> bestPricing =  getPriceBooks.getBestPrice(priceBookIds, prod.Id);
+        	list<pricebookentry> priorityPricing =  getPriceBooks.priorityBestPrice(priceBookIds, prod.Id);
         test.stopTest();
         
         
@@ -125,6 +126,7 @@ public class test_getPriceBooks {
         	list<pricebookentry> strOne =  getPriceBooks.getBestPriceString(priceBookIds,  field, prod.id, order);
          	list<pricebookentry> strTwo =  getPriceBooks.getProductPrice(prod.id, field, order);
         	list<pricebookentry> strThree = getPriceBooks.checkPriceBooks(pb3.Id, prod.id, order); 
+        	list<pricebookentry> strFour = getPriceBooks.addToPriceBook(pb3.Id, prod.id, order);
         test.StopTest();
     }
     
@@ -219,7 +221,9 @@ public class test_getPriceBooks {
         Open_Order_Detail__c openDetail = new Open_Order_Detail__c(Open_Order__c = openHeader.Id,Product__c =atsProd.id, Unit_Price__c = prod.Floor_Price__c, GP_Dex_ID__c='SO789 Line 1');
         insert openDetail;
         //sales doc required sales document name customer doc type=invoice sales doc # # of payments doc date
-        Sales_Document__c salesHeader = new Sales_Document__c(Name='SO123', Customer__c= cust.Id, Doc_Type__c= 'Invoice',Sales_Doc_Num__c='SO123', Number_of_Payments__c=1, doc_date__c =twoOneDaysAgo ); 
+        //to skip sales doc to order need Orig_Quote__c = '123'
+        Sales_Document__c salesHeader = new Sales_Document__c(Name='SO123', Customer__c= cust.Id, Doc_Type__c= 'Invoice',Sales_Doc_Num__c='SO123',
+                                                              Number_of_Payments__c=1, doc_date__c =twoOneDaysAgo, Ship_Type__c='TR', Orig_Quote__c='123' ); 
         insert salesHeader; 
         //sales detail required Sales Doc Detail Name sales document product unit price
         Sales_Doc_Detail__c salesDetails = new Sales_Doc_Detail__c(name='SO123 Line 1',	Sales_Document__c=salesHeader.Id,Product__c=atsProd.Id, Unit_Price__c = prod.Floor_Price__c); 

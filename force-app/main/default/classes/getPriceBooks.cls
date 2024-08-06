@@ -2,8 +2,9 @@
 public with sharing class getPriceBooks {
     @AuraEnabled(cacheable=true)
   public static list<buyergrouppricebook> getPriceBookIds(string accountId){
+      
         list<String> multiGroups = new list<string>();        
-            for(buyergroupmember x: [select buyergroupid, name, priority__c from buyergroupmember where buyerid =: accountId ]){
+            for(buyergroupmember x: [select buyergroupid, name from buyergroupmember where buyerid =: accountId ]){
                 system.debug('x '+ x);
                 multiGroups.add(x.buyergroupid);
             }
@@ -36,7 +37,7 @@ public with sharing class getPriceBooks {
     public static list<pricebookentry> priorityBestPrice(list<string> priceBookIds, string productId){
         list<pricebookentry> priorityPrice = new list<pricebookentry>();
         for(string x:priceBookIds){
-              priorityPrice = [select Id, Pricebook2Id,Pricebook2.Name,Pricebook2.IsStandard, 
+              priorityPrice = [select Id, Pricebook2Id,Pricebook2.Name,Pricebook2.IsStandard, List_Margin__c, 
                                           UnitPrice, Floor_Price__c, Level_1_UserView__c,Level_One_Margin__c, Level_2_UserView__c,Level_2_Margin__c,
                                           Product_Cost__c from PricebookEntry 
                                           where IsActive = true and Pricebook2Id =:x and Product2ID=: productId];  
@@ -56,12 +57,10 @@ public with sharing class getPriceBooks {
     @auraEnabled(cacheable=true)
     public static list<pricebookentry> allPriceBooks(list<string> priceBookIds, string productId){
         list<pricebookentry> priorityPrice = new list<pricebookentry>();
-        for(string x:priceBookIds){
-            system.debug('x => '+ x);
-            system.debug('productId => '+productId); 
+        for(string x:priceBookIds){ 
         	list<pricebookentry> single = [select Id, Pricebook2Id, Product2.Name, ProductCode, Price_Book_Name__c, UnitPrice, Product_Cost__c, Floor_Price__c,
                                		List_Margin__c, Hold_Margin__c, Floor_Margin__c, Min_Margin__c, Product2Id from pricebookentry
-                                	where IsActive = true and Pricebook2Id =:x and Product2ID=: productId];
+                                	where IsActive = true and Pricebook2Id =:x and Product2ID=: productId and pricebook2.My_Price_Book__c= true];
             if(single.size()>0){
             	priorityPrice.add(single[0]);    
             } 
@@ -93,7 +92,7 @@ public with sharing class getPriceBooks {
         string find = 'select Floor_Price__c, Level_One_Margin__c, Level_1_UserView__c, Level_2_Margin__c, Level_2_UserView__c,Product2.Name, Product2.ProductCode, ' 
            + 'Pricebook2Id, UnitPrice, Product_Cost__c, Price_Book_Name__c,Name, Pricebook2.IsStandard,ProductCode, Product2Id, List_Margin__c,List_Margin_Calculated__c, Hold_Margin__c,'
            + 'Floor_Margin__c, Min_Margin__c from PricebookEntry'
-        + ' where IsActive = true and Product2ID=\''+ productId+ '\''; 
+        + ' where IsActive = true and pricebook2.My_Price_Book__c= true and Product2ID=\''+ productId+ '\''; 
         find += orderBy;     
         system.debug(find); 
         //if(limitor> 0){
@@ -106,6 +105,26 @@ public with sharing class getPriceBooks {
     
     @auraEnabled
     public static list<pricebookentry> checkPriceBooks(string pricebook, string productId, string orderBy){
+     
+        string find = 'select Floor_Price__c, Level_One_Margin__c, Level_1_UserView__c, Level_2_Margin__c, Level_2_UserView__c,Product2.Name, Product2.ProductCode, ' 
+           + 'Pricebook2Id, UnitPrice, Product_Cost__c, Price_Book_Name__c,Name, Pricebook2.IsStandard,ProductCode, Product2Id, List_Margin__c,List_Margin_Calculated__c, Hold_Margin__c, '
+           + 'Floor_Margin__c, Min_Margin__c, Agency_Product__c from PricebookEntry'
+        + ' where IsActive = true and pricebook2.My_Price_Book__c= true and Pricebook2Id =\''+ pricebook + '\''; 
+        if(!string.isBlank(productId)){
+            find += ' and Product2ID=\''+ productId+ '\''; 
+        }
+        find += orderBy;     
+        system.debug(find); 
+        //if(limitor> 0){
+          //  find += 'limit '+= limitor
+        //}
+
+        list<pricebookentry> check = Database.query(find);
+        return check; 
+    }
+    
+        @auraEnabled
+    public static list<pricebookentry> addToPriceBook(string pricebook, string productId, string orderBy){
      
         string find = 'select Floor_Price__c, Level_One_Margin__c, Level_1_UserView__c, Level_2_Margin__c, Level_2_UserView__c,Product2.Name, Product2.ProductCode, ' 
            + 'Pricebook2Id, UnitPrice, Product_Cost__c, Price_Book_Name__c,Name, Pricebook2.IsStandard,ProductCode, Product2Id, List_Margin__c,List_Margin_Calculated__c, Hold_Margin__c, '

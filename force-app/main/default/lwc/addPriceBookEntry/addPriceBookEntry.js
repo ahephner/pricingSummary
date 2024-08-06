@@ -2,7 +2,7 @@ import { api, track } from "lwc";
 import LightningModal from 'lightning/modal';
 import LightningConfirm from 'lightning/confirm';
 import LightningAlert from 'lightning/alert';
-import checkPriceBooks from '@salesforce/apex/getPriceBooks.checkPriceBooks';
+import checkPriceBooks from '@salesforce/apex/getPriceBooks.addToPriceBook';
 import {roundNum} from 'c/programBuilderHelper';
 //STANDARD_PRICEBOOK = '01s410000077vSKAAY'; 
 export default class AddPriceBookEntry extends LightningModal {
