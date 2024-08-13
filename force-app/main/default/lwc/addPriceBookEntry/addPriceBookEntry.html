@@ -42,6 +42,9 @@
               <div class="slds-truncate" title="Cost">Cost</div>
               </th>
               <th class="" scope="col">
+                <div class="slds-truncate" title="Floor Price">Floor Price</div>
+                </th>
+              <th class="" scope="col">
               <div class="slds-truncate" title="List Price">List Price</div>
               </th>
               <th class="" scope="col">
@@ -77,6 +80,12 @@
                                                 value={x.Product_Cost__c} formatter="currency" step="0.01"></lightning-input>
               </div>
               </td>
+              <td data-label="Floor Price">
+                <div class="slds-truncate" title="Floor Price">
+                  <lightning-input type="number" name={x.Product2Id} readonly 
+                                                  value={x.flrPrice} formatter="currency" step="0.01"></lightning-input>
+                </div>
+                </td>
               <td data-label="Close Date">
               <div class="slds-truncate" title="List Price">
                 <lightning-input type="number" name={x.Product2Id} read-only={x.readOnly} onchange={handleUnitPrice}

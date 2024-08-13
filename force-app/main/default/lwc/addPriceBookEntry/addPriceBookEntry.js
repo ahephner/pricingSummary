@@ -59,6 +59,7 @@ export default class AddPriceBookEntry extends LightningModal {
                     UnitPrice: x[0].UnitPrice,
                     List_Margin__c: this.checkMarg(x[0]),
                     name: x[0].Name,
+                    flrPrice: x[0].Floor_Price__c,
                     Product_Cost__c: x[0].Product_Cost__c,
                     UseStandardPrice: false,
                     Hold_Margin__c: false,
