@@ -88,17 +88,20 @@
             <template if:true={changesMade}>
               <p class="changedProduct">Changes made make sure to save!</p>
             </template>
+            <!-- <template if:true={badPricing}>
+              <p>One or more products are below floor</p>
+            </template> -->
           </div>
           <div class="slds-col slds-size_1-of-2">
             <lightning-button-group class="slds-float_right slds-m-top_x-small">
-
+              <lightning-button label="Fix Floor" variant="success" onclick={fixFloorViolations}></lightning-button>
               <lightning-button label="Apply All" variant="brand" onclick={applyAll}></lightning-button>
               <!-- <lightning-button label="Refresh"></lightning-button> -->
               <lightning-button label={editAllBTN} 
                                 variant="destructive"
                                 onclick={editAll}></lightning-button>
       
-              <lightning-button label="Save" variant="brand" onclick={save}></lightning-button>
+              <lightning-button label="Save" variant="brand" onclick={save} disabled={badPricing}></lightning-button>
             </lightning-button-group>
           </div>
 
@@ -114,6 +117,9 @@
       <th class="" scope="col">
       <div class="slds-truncate" title="Cost">Cost</div>
       </th>
+      <th class="" scope="col">
+        <div class="slds-truncate" title="Floor">Floor</div>
+        </th>
       <th class="" scope="col">
       <div class="slds-truncate" title="List Price">List Price</div>
       </th>
@@ -153,14 +159,20 @@
                                         value={x.Product_Cost__c} formatter="currency" step="0.01"></lightning-input>
       </div>
       </td>
+      <td data-label="Floor">
+        <div class="slds-truncate" title="Floor">
+          <lightning-input type="number" name={x.Id} readonly 
+                                          value={x.Floor_Price__c} formatter="currency" step="0.01"></lightning-input>
+        </div>
+        </td>
       <td data-label="Close Date">
-      <div class="slds-truncate" title="List Price">
+      <div class="slds-truncate" title="List Price" data-price={x.Id}>
         <lightning-input type="number" name={x.Id} read-only={x.readOnly} onchange={handleUnitPrice}
-                                        value={x.UnitPrice} formatter="currency" step="0.01" ></lightning-input>
+                              value={x.UnitPrice} formatter="currency" step="0.01" ></lightning-input> 
       </div>
       </td>
       <td data-label="Floor">
-      <div class="slds-truncate" title="List Margin">
+      <div class="slds-truncate" title="List Margin" data-margin={x.Id}>
         <lightning-input type="number" name={x.Id} read-only={x.readOnly} onchange={handleListMargin} 
                                         value={x.List_Margin__c}  step="0.01"></lightning-input>
       </div>

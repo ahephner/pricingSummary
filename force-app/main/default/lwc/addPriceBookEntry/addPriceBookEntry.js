@@ -2,7 +2,7 @@ import { api, track } from "lwc";
 import LightningModal from 'lightning/modal';
 import LightningConfirm from 'lightning/confirm';
 import LightningAlert from 'lightning/alert';
-import checkPriceBooks from '@salesforce/apex/getPriceBooks.checkPriceBooks';
+import checkPriceBooks from '@salesforce/apex/getPriceBooks.addToPriceBook';
 import {roundNum} from 'c/programBuilderHelper';
 //STANDARD_PRICEBOOK = '01s410000077vSKAAY'; 
 export default class AddPriceBookEntry extends LightningModal {
@@ -59,6 +59,7 @@ export default class AddPriceBookEntry extends LightningModal {
                     UnitPrice: x[0].UnitPrice,
                     List_Margin__c: this.checkMarg(x[0]),
                     name: x[0].Name,
+                    flrPrice: x[0].Floor_Price__c,
                     Product_Cost__c: x[0].Product_Cost__c,
                     UseStandardPrice: false,
                     Hold_Margin__c: false,
