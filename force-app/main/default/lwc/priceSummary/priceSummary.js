@@ -198,4 +198,9 @@ export default class PriceSummary extends LightningElement {
            return good; 
     }
 
+    getCounterUpdates(){
+        const info =  new CustomEvent('counterinfo');
+        this.dispatchEvent(info);
+    }
+
 }

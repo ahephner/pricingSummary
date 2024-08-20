@@ -4,6 +4,7 @@ import getProductPrice from '@salesforce/apex/getPriceBooks.getProductPrice';
 //import getBestPriceString from '@salesforce/apex/getPriceBooks.getBestPriceString';
 //priority price
 import allPriceBooks from '@salesforce/apex/getPriceBooks.allPriceBooks';
+import getCounterUpdates from '@salesforce/apex/getPriceBooks.getCounterUpdates';
 import checkPriceBooks from '@salesforce/apex/getPriceBooks.checkPriceBooks';
 import savePBE from '@salesforce/apex/getPriceBooks.savePBE';
 import { updateRecord } from 'lightning/uiRecordApi';
@@ -173,6 +174,50 @@ export default class DisplayTable extends LightningElement {
       
         
  
+    }
+
+    @api counterProds(){
+        getCounterUpdates({})
+        .then((res)=>{
+            let dataBack = res.map(x=>{
+//check if there is a floor margin if no set at 30; 
+                return{
+                    Id: x.Id,
+                    isEdited: false,
+                    updateProd2: false, 
+                    canEdit: x.Pricebook2Id === '01s410000077vSKAAY' ? false: true,
+                    name: x.Product2.Name.substring(0,30)+ '...',
+                    code: x.ProductCode,
+                    priceBook: x.Price_Book_Name__c,
+                    UnitPrice: x.UnitPrice,
+                    Product_Cost__c: x.Product_Cost__c,
+                    Floor_Price__c: x.Floor_Price__c, 
+                    List_Margin__c: x.List_Margin__c,
+                    Hold_Margin__c: x.Hold_Margin__c,
+                    Floor_Margin__c: x.Floor_Margin__c,
+                    Min_Margin__c: x.Min_Margin__c === undefined ? x.Floor_Margin__c : x.Min_Margin__c,
+                    readOnly: true,
+                    Product2Id: x.Product2Id,
+                    goodPrice: x.Floor_Price__c <= x.UnitPrice? true:false, 
+                    btnText: 'Edit', 
+                    btnBrand: 'brand',
+                    bookURL: `https://advancedturf.lightning.force.com/lightning/r/Pricebook2/${x.Pricebook2Id}/view`,
+                    pbeURL: `https://advancedturf.lightning.force.com/lightning/r/Product2/${x.Id}/view`
+                    //bookURL: `https://advancedturf--full.sandbox.lightning.force.com/lightning/r/Pricebook2/${x.Pricebook2Id}/view`,
+                    //pbeURL:  `https://advancedturf--full.sandbox.lightning.force.com/lightning/r/PricebookEntry/${x.Id}/view`
+                }
+            }); 
+            this.fetchedData = [...dataBack]; 
+            this.userInform = 'Searching all price books this product'
+        }).then((x)=>{
+        //console.log(1, this.fetchedData)
+           this.productCost = this.fetchedData[0]?.Product_Cost__c ?? 0; 
+           this.alertPriceUpdate(); 
+        })
+
+        this.foundProducts = true;
+        this.showFooter = true; 
+        this.hasRendered=true; 
     }
     fixFloorViolations(){
         let indexArr = [];
