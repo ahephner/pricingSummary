@@ -75,6 +75,7 @@
       </table>
     </lightning-card> -->
     <lightning-card>
+
       <!-- <div class="maintain">
         <lightning-input data-id="toggle" type="toggle" 
         label='Maintain Floors' checked={enforceFloor} onchange={handleEnforce}
@@ -93,6 +94,18 @@
             </template> -->
           </div>
           <div class="slds-col slds-size_1-of-2">
+            <label for="ship-select">Avaliable Categories:</label>
+            <select name="address" class="slds-select"  onchange={selectChange}>
+
+              
+                  <option value="All">All</option>
+              
+              <template for:each={options} for:item='x'>
+  
+                      <option key={x.value} value={x.value}>{x.label}</option>
+          </template>
+              
+          </select>
             <lightning-button-group class="slds-float_right slds-m-top_x-small">
               <lightning-button label="Fix Floor" variant="success" onclick={fixFloorViolations}></lightning-button>
               <lightning-button label="Apply All" variant="brand" onclick={applyAll}></lightning-button>
@@ -107,44 +120,48 @@
 
         </div>
     </template>
-    <div class="slds-scrollable_y" style="height:350px; min-height:350px;">
-    <table class="slds-table slds-table_cell-buffer slds-table_bordered slds-table_striped" aria-label="Example table of Opportunities with striped rows">
-      <thead>
-      <tr class="slds-line-height_reset">
-      <th class="" scope="col">
-      <div class="slds-truncate" title="Pricebook - Entry">Pricebook - Entry</div>
-      </th>
-      <th class="" scope="col">
-      <div class="slds-truncate" title="Cost">Cost</div>
-      </th>
-      <th class="" scope="col">
-        <div class="slds-truncate" title="Floor">Floor</div>
-        </th>
-      <th class="" scope="col">
-      <div class="slds-truncate" title="List Price">List Price</div>
-      </th>
-      <th class="" scope="col">
-      <div class="slds-truncate" title="List Margin">List Margin</div>
-      </th>
-      <th class="" scope="col">
-      <div class="slds-truncate" title="Hold Margin">Hold Margin</div>
-      </th>
-      <!-- <th class="" scope="col">
-      <div class="slds-truncate" title="Amount">Min Margin</div>
-      </th> -->
-      <th class="" scope="col">
-      <div class="slds-truncate" title="Button"></div>
-      </th>
-      </tr>
-      </thead>
-      <tbody>
-        <template if:false={foundProducts}>
-          <div class="exampleHolder">
-            <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
-        </div>
+    <div class="slds-table--header-fixed_container" style="height:350px;">
+      <div class="slds-scrollable_y" style="height:100%;">
+        <table class="slds-table slds-table_cell-buffer slds-table_bordered slds-table_striped slds-table--header-fixed" aria-label="Example table of Opportunities with striped rows">
+          <template if:true={showFooter}>
+          <thead>
+            <tr class="slds-text-title_caps">
+              <th class="" scope="col">
+                <div class="slds-truncate slds-cell-fixed" title="Pricebook - Entry">Pricebook - Entry</div>
+              </th>
+              <th class="" scope="col">
+                <div class="slds-truncate slds-cell-fixed font" title="Cost">Cost</div>
+              </th>
+              <th class="" scope="col">
+                <div class="slds-truncate slds-cell-fixed font" title="Floor">Floor</div>
+              </th>
+              <th class="" scope="col">
+                <div class="slds-truncate slds-cell-fixed font" title="List Price">List Price</div>
+              </th>
+              <th class="" scope="col">
+                <div class="slds-truncate slds-cell-fixed font" title="List Margin">LPP Margin <lightning-helptext content={minMargeInfo}></lightning-helptext></div>
+              </th>
+              <th class="" scope="col">
+                <div class="slds-truncate slds-cell-fixed font stackingThem" title="Hold Margin"><span>Hold</span><span>Margin</span> </div>
+              </th>
+              <th class="" scope="col">
+                <div class="slds-truncate slds-cell-fixed font" title="Calc Margin">CC Margin <lightning-helptext content={calMargInfo}></lightning-helptext></div>
+              </th>
+              <!-- <th class="" scope="col slds-cell-fixed">
+                <div class="slds-truncate" title="Button"></div>
+              </th> -->
+            </tr>
+          </thead>
         </template>
-        <template if:true={foundProducts}>
-          <template  for:each={fetchedData} for:item="x" for:index="index">
+          <tbody>
+            <template if:false={foundProducts}>
+              <div class="exampleHolder">
+                <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+            </div>
+            </template>
+            
+    <template if:true={foundProducts}>
+        <template  for:each={fetchedData} for:item="x" for:index="index">
 
       <tr class="slds-hint-parent" key={x.Id}>
       <th data-label="Opportunity Name" scope="row">
@@ -183,13 +200,13 @@
                                         checked={x.Hold_Margin__c}  ></lightning-input>
         </div>
       </td>
-      <!-- <td data-label="floorMargin">
-      <div class="slds-truncate" title="Level One">
-        <lightning-input type="number" name={x.Id} read-only={x.readOnly} onchange={handleFloorMargin}
-                                        value={x.Floor_Margin__c}  step="0.01"></lightning-input>
+       <td data-label="floorMargin">
+      <div class="slds-truncate" title="Calc Margin">
+        <lightning-input type="number" name={x.Id} readonly
+                                        value={x.List_Margin_Calculated__c}  step="0.01"></lightning-input>
       </div>
       </td>
-      <td data-label="levOneMargin">
+      <!--<td data-label="levOneMargin">
       <div class="slds-truncate" title="Margin">
         <lightning-input type="number" name={x.Id} read-only={x.readOnly} onchange={handleMinMargin}
                                         value={x.Min_Margin__c}  step="0.01"></lightning-input>
@@ -211,10 +228,10 @@
       
     </template>
   </template>
-      </tbody>
-    </table>
-  </div>
-  
+  </tbody>
+</table>
+</div>
+</div>
   <div>
 
     </div>

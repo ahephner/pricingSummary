@@ -109,7 +109,7 @@ public with sharing class getPriceBooks {
         string find = 'select Floor_Price__c, Level_One_Margin__c, Level_1_UserView__c, Level_2_Margin__c, Level_2_UserView__c,Product2.Name, Product2.ProductCode, ' 
            + 'Pricebook2Id, UnitPrice, Product_Cost__c, Price_Book_Name__c,Name, Pricebook2.IsStandard,ProductCode, Product2Id, List_Margin__c,List_Margin_Calculated__c, Hold_Margin__c, '
            + 'Floor_Margin__c, Min_Margin__c, Agency_Product__c from PricebookEntry'
-        + ' where IsActive = true and pricebook2.My_Price_Book__c= true and Pricebook2Id =\''+ pricebook + '\''; 
+        + ' where IsActive = true and Pricebook2Id =\''+ pricebook + '\''; 
         if(!string.isBlank(productId)){
             find += ' and Product2ID=\''+ productId+ '\''; 
         }

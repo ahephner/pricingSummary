@@ -76,10 +76,10 @@ export default class AddPriceBookEntry extends LightningModal {
         let value = '';
         if(item.Agency_Product__c){
             return value; 
-        }else if(item.List_Margin__c === undefined){
+        }else if(item.List_Margin_Calculated__c === undefined){
             return value = roundNum((((item.UnitPrice - item.Product_Cost__c)/item.UnitPrice)*100),2)
         }else{
-            return value = item.List_Margin__c; 
+            return value = item.List_Margin_Calculated__c; 
         }
     }
     handleListMargin(evt){

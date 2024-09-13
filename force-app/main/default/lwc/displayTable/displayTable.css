@@ -4,6 +4,9 @@
     width: 80px;
     height: 80px;
 }
+.font{
+    font-size: smaller;
+}
 
 .names{
     display: grid;
@@ -11,6 +14,9 @@
 
 .maintain{
     display: flex;
+}
+.stackingThem{
+    display: grid;
 }
 
 .changedProduct{
