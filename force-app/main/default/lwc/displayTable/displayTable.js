@@ -15,6 +15,7 @@ import ApplyAllModal from 'c/applyAllModal';
 export default class DisplayTable extends LightningElement {
     minMargeInfo = 'Last margin sold or set by rep'; 
     calMargInfo = 'Current Cost Margin is Calculated with LPP/List Price and Today’s Cost';
+    filterInfo = 'Filters based on products in your price book. Only avaliable when searching single price book'; 
     prods; 
     @api productId;
     @api accountId
@@ -27,7 +28,8 @@ export default class DisplayTable extends LightningElement {
     @api accountpricebooks
     groupedData; 
     foundProducts = true;
-    showFooter = false;  
+    showFooter = false;
+    accBased = false;   
     enforceFloor = false;
     averageUnitPrice = 0; 
     averageMarginUp = 0;
@@ -37,6 +39,7 @@ export default class DisplayTable extends LightningElement {
     changesMade = false; 
     badPricing  = false;
     hasRendered = false;  
+    @track gathered = []
     @track fetchedData = []; 
     @track options = []; 
     @api iAmSpinning(){
@@ -87,14 +90,15 @@ export default class DisplayTable extends LightningElement {
                         }
                     }); 
                     this.groupedData = Object.groupBy(dataBack, ({sub})=> sub);
-                    let gathered = []
+                    
                     for(const [key] of Object.entries(this.groupedData)){
                         let pair = {label:key, value:key} 
                         this.options.push(pair)
-                      gathered.push(...this.groupedData[key])
+                      this.gathered.push(...this.groupedData[key])
                     }
                     
-                    this.fetchedData = [...gathered];
+                    this.fetchedData = [...this.gathered];
+                    this.accBased = true; 
                     this.userInform = 'Searching Single Price Book'
                 }
             }).then((x)=>{
@@ -136,8 +140,10 @@ export default class DisplayTable extends LightningElement {
                                 //pbeURL:  `https://advancedturf--full.sandbox.lightning.force.com/lightning/r/PricebookEntry/${x.Id}/view`
                             }
                         }); 
-            
+
+                        
                         this.fetchedData = [...dataBack];
+                        this.accBased = false; 
                         this.userInform = 'Searching best price for this account'
                     }
                 }).then((x)=>{
@@ -178,7 +184,8 @@ export default class DisplayTable extends LightningElement {
                             //pbeURL:  `https://advancedturf--full.sandbox.lightning.force.com/lightning/r/PricebookEntry/${x.Id}/view`
                         }
                     }); 
-                    this.fetchedData = [...dataBack]; 
+                    this.fetchedData = [...dataBack];
+                    this.accBased = false; 
                     this.userInform = 'Searching all price books this product'
                 }).then((x)=>{
                 //console.log(1, this.fetchedData)
@@ -263,7 +270,7 @@ export default class DisplayTable extends LightningElement {
     selectChange(event){
         let newValue = this.template.querySelector('.slds-select').value;
         if(newValue === 'All'){
-
+            this.fetchedData = [...this.gathered]
         }else{
             let filtered = this.groupedData[newValue]
             this.fetchedData = [...filtered]

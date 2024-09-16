@@ -93,30 +93,32 @@
               <p>One or more products are below floor</p>
             </template> -->
           </div>
-          <div class="slds-col slds-size_1-of-2">
-            <label for="ship-select">Avaliable Categories:</label>
-            <select name="address" class="slds-select"  onchange={selectChange}>
-
-              
-                  <option value="All">All</option>
-              
-              <template for:each={options} for:item='x'>
+          <template if:true={accBased}>
+            <div class="slds-col slds-size_1-of-2">
+              <label for="ship-select">Available Categories:<lightning-helptext content={filterInfo}></lightning-helptext></label>
+              <select name="address" class="slds-select"  onchange={selectChange}>
   
-                      <option key={x.value} value={x.value}>{x.label}</option>
+                
+                    <option value="All">All</option>
+                
+                <template for:each={options} for:item='x'>
+    
+                        <option key={x.value} value={x.value}>{x.label}</option>
+            </template>
+                
+            </select>
+              <lightning-button-group class="slds-float_right slds-m-top_x-small">
+                <lightning-button label="Fix Floor" variant="success" onclick={fixFloorViolations}></lightning-button>
+                <lightning-button label="Apply All" variant="brand" onclick={applyAll}></lightning-button>
+                <!-- <lightning-button label="Refresh"></lightning-button> -->
+                <lightning-button label={editAllBTN} 
+                                  variant="destructive"
+                                  onclick={editAll}></lightning-button>
+        
+                <lightning-button label="Save" variant="brand" onclick={save} disabled={badPricing}></lightning-button>
+              </lightning-button-group>
+            </div>
           </template>
-              
-          </select>
-            <lightning-button-group class="slds-float_right slds-m-top_x-small">
-              <lightning-button label="Fix Floor" variant="success" onclick={fixFloorViolations}></lightning-button>
-              <lightning-button label="Apply All" variant="brand" onclick={applyAll}></lightning-button>
-              <!-- <lightning-button label="Refresh"></lightning-button> -->
-              <lightning-button label={editAllBTN} 
-                                variant="destructive"
-                                onclick={editAll}></lightning-button>
-      
-              <lightning-button label="Save" variant="brand" onclick={save} disabled={badPricing}></lightning-button>
-            </lightning-button-group>
-          </div>
 
         </div>
     </template>
