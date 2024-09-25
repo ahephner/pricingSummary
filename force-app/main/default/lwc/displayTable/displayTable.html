@@ -104,9 +104,9 @@
                 <template for:each={options} for:item='x'>
     
                         <option key={x.value} value={x.value}>{x.label}</option>
-            </template>
-                
-            </select>
+                </template>
+              </select>
+
               <lightning-button-group class="slds-float_right slds-m-top_x-small">
                 <lightning-button label="Fix Floor" variant="success" onclick={fixFloorViolations}></lightning-button>
                 <lightning-button label="Apply All" variant="brand" onclick={applyAll}></lightning-button>
@@ -119,10 +119,23 @@
               </lightning-button-group>
             </div>
           </template>
-
+          <template if:false={accBased}>
+            <div class="slds-col slds-size_1-of-2">
+            <lightning-button-group class="slds-float_right slds-m-top_x-small">
+              <lightning-button label="Fix Floor" variant="success" onclick={fixFloorViolations}></lightning-button>
+              <lightning-button label="Apply All" variant="brand" onclick={applyAll}></lightning-button>
+              <!-- <lightning-button label="Refresh"></lightning-button> -->
+              <lightning-button label={editAllBTN} 
+                                variant="destructive"
+                                onclick={editAll}></lightning-button>
+      
+              <lightning-button label="Save" variant="brand" onclick={save} disabled={badPricing}></lightning-button>
+            </lightning-button-group>
+          </div>
+          </template>
         </div>
     </template>
-    <div class="slds-table--header-fixed_container" style="height:350px;">
+    <div class="slds-table--header-fixed_container" style="height:429px;">
       <div class="slds-scrollable_y" style="height:100%;">
         <table class="slds-table slds-table_cell-buffer slds-table_bordered slds-table_striped slds-table--header-fixed" aria-label="Example table of Opportunities with striped rows">
           <template if:true={showFooter}>
@@ -215,6 +228,7 @@
       </div>
       </td> -->
       <td data-label="Edit Button">
+        
       <div class="slds-truncate" title="btn">
        <template if:true={x.canEdit}>
          <lightning-button 
@@ -224,6 +238,12 @@
           onclick={editOne} 
         ></lightning-button>
        </template>
+       <lightning-button-icon icon-name="utility:delete"  
+                                                           size="x-small"
+                                                           name={x.Id}  
+                                                           alternative-text="Delete Item" 
+                                                           class="slds-m-left_small"
+                                                           onclick={removeLineItem}></lightning-button-icon>
       </div>
       </td>
       </tr>

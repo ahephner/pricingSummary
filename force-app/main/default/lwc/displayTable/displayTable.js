@@ -9,6 +9,7 @@ import checkPriceBooks from '@salesforce/apex/getPriceBooks.checkPriceBooks';
 import savePBE from '@salesforce/apex/getPriceBooks.savePBE';
 import { updateRecord } from 'lightning/uiRecordApi';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
+import { deleteRecord} from 'lightning/uiRecordApi';
 import {roundNum} from 'c/programBuilderHelper';
 import ApplyAllModal from 'c/applyAllModal';
 //import{ refreshApex } from '@salesforce/apex';
@@ -479,6 +480,16 @@ export default class DisplayTable extends LightningElement {
             this.editAllBTN = 'Edit All';
         }
 
+   }
+
+   removeLineItem(evt){
+    let index = this.fetchedData.findIndex(x=> x.Id === evt.target.name)
+    let Id = this.fetchedData[index].Id
+    let cf = confirm('Do you want to remove this entry?')
+    if(cf ===true){
+        this.fetchedData.splice(index, 1);
+        deleteRecord(Id);
+    }
    }
 
    async applyAll(){
