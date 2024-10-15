@@ -3,8 +3,10 @@ import LightningModal from 'lightning/modal';
 import LightningConfirm from 'lightning/confirm';
 import LightningAlert from 'lightning/alert';
 import checkPriceBooks from '@salesforce/apex/getPriceBooks.addToPriceBook';
+import getPriceBooks from '@salesforce/apex/lwcHelper.getAllBooks';
 import {roundNum} from 'c/programBuilderHelper';
 //STANDARD_PRICEBOOK = '01s410000077vSKAAY'; 
+const columns = [{ label: 'Name', fieldName: 'Name' }]
 export default class AddPriceBookEntry extends LightningModal {
     product2Id;
     @api priceBookId 
@@ -13,6 +15,16 @@ export default class AddPriceBookEntry extends LightningModal {
     apexOrderBy=''
     pricebookFound = false; 
     priceBookDropStyle = 'slds-listbox slds-listbox_vertical slds-dropdown noOffSet'
+    loaded = false; 
+    colList = columns; 
+    data = [];
+    btnText = 'Add Products'; 
+    connectedCallback() {
+        this.handleAllPriceBooks();
+        this.loaded = true; 
+    }
+    
+    
     handleClear(mess){
         let clearWhat = mess.detail; 
         switch(clearWhat){
@@ -41,6 +53,27 @@ export default class AddPriceBookEntry extends LightningModal {
         this.pricebookFound = true; 
     }
 
+    moveScreen(){
+        switch(this.btnText){
+            case 'Add Products':
+                this.btnText = 'Save and Close';
+                break;
+            case 'Save and Close':
+                break;
+            default:
+                console.error('switch statement broke')
+        }
+    }
+    //load all pricebooks
+    async handleAllPriceBooks(){
+        this.data = await getPriceBooks(); 
+    }
+
+    getSelectedRow(event){
+        let selected = event.detail.selectedRows; 
+        console.log(selected)
+
+    }
     async addProduct(){
         let mess = {detail: 'product'}
         let back = await checkPriceBooks({pricebook: '01s410000077vSKAAY' , productId: this.product2Id, orderBy:this.apexOrderBy })

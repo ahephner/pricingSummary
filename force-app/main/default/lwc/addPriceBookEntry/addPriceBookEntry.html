@@ -2,16 +2,23 @@
     <lightning-modal-header label="Add Products to Price Book"></lightning-modal-header>
     <lightning-modal-body>
         <!-- price book look up -->
-        <div class="slds-grid">
+        <div class="slds-grid slds-wrap">
 <!-- Step One select pricebook -->
           <template if:false={pricebookFound}>
-            <p class="slds-col slds-size_1-of-3">What Pricebook to add products to.</p> 
+            <p class="slds-col slds-size_1-of-1">What Pricebook to add products to. <i>Note you can only add to Price Books you own</i></p> 
             <br/>
-            <i>Note you can only add to Price Books you own</i>
-            <div class="slds-col slds-size_1-of-3">
-              <c-price-book-look-up onnewpricebook={handlePriceBook}
+            
+            <div class="slds-col slds-size_1-of-1 table">
+              <lightning-datatable
+              key-field="Id"
+              data={data}
+              columns={colList}
+              onrowselection={getSelectedRow}
+              >
+      </lightning-datatable>
+              <!-- <c-price-book-look-up onnewpricebook={handlePriceBook}
                                     onclearbookid={handleClear}
-                                    styletype={priceBookDropStyle}></c-price-book-look-up>
+                                    styletype={priceBookDropStyle}></c-price-book-look-up> -->
           </div>
           </template>
 <!-- Step 2 select products -->
@@ -116,6 +123,6 @@
     </lightning-modal-body>
     <lightning-modal-footer>
         <lightning-button label="Cancel" onclick={checkClose}></lightning-button>
-        <lightning-button label="Save and Close" onclick={handleSave}></lightning-button>
+        <lightning-button label={btnText} onclick={moveScreen}></lightning-button>
     </lightning-modal-footer>
 </template>
