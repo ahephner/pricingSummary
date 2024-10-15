@@ -15,7 +15,11 @@ export default class Product2LookUp extends LightningElement {
     @wire(getProducts,{searchTerm:'$queryTerm'})
         wiredList(result){
             if(result.data){
-                this.results = result.data;
+                let data = result.data;
+                this.results = data.map(item=>({
+                    ...item,
+                    nameCode: `${item.Name} - ${item.ProductCode}`
+                }))
                 this.loading = false;
                 this.showResult = true;
                // console.log(this.results);  
