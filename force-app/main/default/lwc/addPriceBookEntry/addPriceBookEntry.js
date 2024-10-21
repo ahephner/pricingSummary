@@ -18,7 +18,10 @@ export default class AddPriceBookEntry extends LightningModal {
     loaded = false; 
     colList = columns; 
     data = [];
+    selectedRows = [];
+    selectedPriceBookId = [];
     btnText = 'Add Products'; 
+    @track displayText = []; 
     connectedCallback() {
         this.handleAllPriceBooks();
         this.loaded = true; 
@@ -57,8 +60,12 @@ export default class AddPriceBookEntry extends LightningModal {
         switch(this.btnText){
             case 'Add Products':
                 this.btnText = 'Save and Close';
+                //this.selectedPriceBookId = this.selectedRows.map(x=>x.Id)
+                this.pricebookFound = true; 
                 break;
             case 'Save and Close':
+                let products = this.createAllEntries();
+                this.close(products)
                 break;
             default:
                 console.error('switch statement broke')
@@ -66,14 +73,53 @@ export default class AddPriceBookEntry extends LightningModal {
     }
     //load all pricebooks
     async handleAllPriceBooks(){
-        this.data = await getPriceBooks(); 
+        let getBooks = await getPriceBooks(); 
+        this.data =  getBooks.map((item)=>{
+            //css class
+            let checked = false;
+            //for search
+            let searchName = item.Name.toLowerCase(); 
+            return {...item, checked, searchName}
+        })
+
+        this.displayText = [...this.data]
     }
 
-    getSelectedRow(event){
-        let selected = event.detail.selectedRows; 
-        console.log(selected)
+    handleSearch(event){
+        
+        const searchKey = event.target.value.toLowerCase();
+        window.clearTimeout(this.delayTimeout);   
+            this.delayTimeout = setTimeout(() =>{
+                let base =  JSON.parse(JSON.stringify(this.data))
+                
+                let narrowed = base.filter(item => { 
+                   return item.Name.toLowerCase().includes(searchKey); 
+                });
+                
+            this.displayText = [...narrowed]
+                
+            }, 300);
+    }
+    handleSelectBook(event){
+        event.preventDefault();
+        let index = this.displayText.findIndex(item => item.Id === event.target.name)
+        let ogIndex = this.data.findIndex(item => item.Id === event.target.name)
+        if(index != -1){
+            let check = !this.displayText[index].checked
+            
+            this.displayText[index].checked = check; 
+            this.data[ogIndex].checked = check; 
+            this.displayText = [...this.displayText]; 
+            this.data = [...this.data];
+            !check ? this.removeId(this.displayText[index].Id) : this.selectedPriceBookId.push(this.displayText[index].Id)
+        }
 
     }
+    removeId(id){
+        let x = this.selectedPriceBookId.indexOf(id);
+        this.selectedPriceBookId.splice(x, 1); 
+    }
+
     async addProduct(){
         let mess = {detail: 'product'}
         let back = await checkPriceBooks({pricebook: '01s410000077vSKAAY' , productId: this.product2Id, orderBy:this.apexOrderBy })
@@ -82,12 +128,12 @@ export default class AddPriceBookEntry extends LightningModal {
     }
 
     addList(x){
-        if(x){
+        if(x){            
             this.newProds = [
                 ...this.newProds,{
                     sObjectType: 'PricebookEntry',
                     Id: '',
-                    Pricebook2Id: this.priceBookId,
+                    Pricebook2Id: '',
                     Product2Id: this.product2Id,
                     UnitPrice: x[0].UnitPrice,
                     List_Margin__c: this.checkMarg(x[0]),
@@ -102,7 +148,8 @@ export default class AddPriceBookEntry extends LightningModal {
                     readOnly: x[0].Agency_Product__c ? true : false
                 }
             ]
-        }
+    }
+        
     }
 //will check if product is agency or list margin is set
     checkMarg(item){
@@ -147,6 +194,19 @@ export default class AddPriceBookEntry extends LightningModal {
         this.newProds[index].Hold_Margin__c = evt.target.checked; 
         this.newProds[index].isEdited = true;
     }
+    //this will create all price book entries from the price books selected
+    createAllEntries(){
+        let updated = []
+        for(let i = 0; i< this.newProds.length; i++){
+            let add = this.selectedPriceBookId.map((pricebookId)=>{
+                let newObj = {...this.newProds[i]}
+                newObj.Pricebook2Id = pricebookId;
+                return newObj
+            })
+            updated = [...updated, ...add]
+        }
+        return updated; 
+    }
     handleSave(){    
         if(this.newProds.length>0){
             this.close(this.newProds)
@@ -184,6 +244,30 @@ export default class AddPriceBookEntry extends LightningModal {
         }
     }
 
+    selectAllLabel = 'Select All'; 
+    selectAllVar = 'success'; 
+    massEdit(){
+         if(this.selectAllLabel === 'Select All'){
+
+            for(let i= 0; i<this.displayText.length;i++){
+                this.displayText[i].checked = true;
+                this.selectedPriceBookId.push(this.displayText[i].Id)
+            }
+            this.displayText = [...this.displayText];
+            this.data = [...this.displayText]
+            this.selectAllLabel = 'Unselect All';
+            this.selectAllVar = 'destructive';
+         }else{
+            for(let i= 0; i<this.displayText.length;i++){
+                this.displayText[i].checked = false;
+            }
+            this.displayText = [...this.displayText];
+            this.data = [...this.displayText]
+            this.selectedPriceBookId =[]
+            this.selectAllLabel = 'Select All';
+            this.selectAllVar = 'success'; 
+         } 
+    }
 
     handleClose(){
 

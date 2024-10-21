@@ -2,25 +2,47 @@
     <lightning-modal-header label="Add Products to Price Book"></lightning-modal-header>
     <lightning-modal-body>
         <!-- price book look up -->
-        <div class="slds-grid slds-wrap">
-<!-- Step One select pricebook -->
-          <template if:false={pricebookFound}>
+        <!-- Step One select pricebook -->
+        <template if:false={pricebookFound}>
+            <div class="slds-grid slds-wrap">
             <p class="slds-col slds-size_1-of-1">What Pricebook to add products to. <i>Note you can only add to Price Books you own</i></p> 
             <br/>
-            
-            <div class="slds-col slds-size_1-of-1 table">
+            <div class="slds-col slds-size_1-of-1 lineUp">
+              <lightning-input type="text" class='searchBar' label='Search Pricebooks' onchange={handleSearch}></lightning-input> 
+              <lightning-button 
+                class="slds-m-top_large slds-m-left_medium"
+                variant={selectAllVar}
+                label={selectAllLabel} 
+                onclick={massEdit} 
+              ></lightning-button>
+            </div>
+          </div>
+            <div class="outside slds-scrollable_y  outBox" style="height:30rem;width:100%">
+              <template for:each={displayText} for:item="x">
+                  <div key={x.Id}>
+                      <div class="container">
+                          <lightning-button-icon-stateful icon-name="utility:check" 
+                                                          size="small" selected={x.checked}
+                                                          onclick={handleSelectBook} name={x.Id}
+                                                          alternative-text="Like" class="slds-m-left_xx-small" data-button-number="04"></lightning-button-icon-stateful>
+                          <p class="slds-m-left_small">{x.Name}</p>
+                      </div>
+                  </div>
+                  </template>
+                </div>
+            <!-- <div class="slds-col slds-size_1-of-1 table">
               <lightning-datatable
               key-field="Id"
               data={data}
               columns={colList}
               onrowselection={getSelectedRow}
               >
-      </lightning-datatable>
+      </lightning-datatable> -->
               <!-- <c-price-book-look-up onnewpricebook={handlePriceBook}
                                     onclearbookid={handleClear}
                                     styletype={priceBookDropStyle}></c-price-book-look-up> -->
-          </div>
-          </template>
+                                  </template>
+                                
 <!-- Step 2 select products -->
             <template if:true={pricebookFound}>
               <div class="slds-col slds-size_1-of-3">
@@ -36,7 +58,7 @@
                 onclearprod={handleClear}></c-product2-look-up>
             </div>  
             </template>
-        </div>
+        
         <template if:true={pricebookFound}>
           <div class="slds-scrollable_y" style="height:350px; min-height:350px;">
             <table class="slds-table slds-table_cell-buffer slds-table_bordered slds-table_striped" aria-label="Example table of Opportunities with striped rows">
