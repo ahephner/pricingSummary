@@ -3,7 +3,7 @@
     <lightning-modal-body>
         <!-- price book look up -->
         <!-- Step One select pricebook -->
-        <template if:false={pricebookFound}>
+        <template if:true={pricebookFound}>
             <div class="slds-grid slds-wrap">
             <p class="slds-col slds-size_1-of-1">What Pricebook to add products to. <i>Note you can only add to Price Books you own</i></p> 
             <br/>
@@ -30,36 +30,45 @@
                   </div>
                   </template>
                 </div>
-            <!-- <div class="slds-col slds-size_1-of-1 table">
-              <lightning-datatable
-              key-field="Id"
-              data={data}
-              columns={colList}
-              onrowselection={getSelectedRow}
-              >
-      </lightning-datatable> -->
-              <!-- <c-price-book-look-up onnewpricebook={handlePriceBook}
-                                    onclearbookid={handleClear}
-                                    styletype={priceBookDropStyle}></c-price-book-look-up> -->
-                                  </template>
-                                
-<!-- Step 2 select products -->
-            <template if:true={pricebookFound}>
-              <div class="slds-col slds-size_1-of-3">
-                <lightning-input 
-                  type="text"
-                  label="Products will be added to"
-                  value={priceBookName}
-                  readonly
-                ></lightning-input>
+
+  </template>
+  <!--Step 2 Pick Products-->
+  <template if:true={addProducts}>
+    <div class="slds-grid slds-wrap">
+      <p class="slds-col slds-size_1-of-1">Select Products to add.</p> 
+        <br/>
+          <div class="slds-col slds-size_1-of-1 lineUp">
+            <lightning-input type="text" class='searchBar' label='Search Pricebooks' onchange={handleProdSearch}></lightning-input> 
+        </div>
+      </div>
+      <div class="outside slds-scrollable_y  outBox" style="height:30rem;width:100%">
+        <lightning-layout multiple-rows="true">
+        <template if:false={showResult}>
+          <div class="exampleHolder">
+            <lightning-spinner alternative-text="Loading" size="x-small"></lightning-spinner>
+        </div>
+        </template>
+        <template if:true={showResult} for:each={prodsFound} for:item="x">
+          <lightning-layout-item size='12' key={x.Id}>
+            <div class="container slds-grid">
+              <lightning-button-icon-stateful icon-name="utility:check" 
+                size="small" selected={x.checked}
+                onclick={handleProduct} name={x.Id}
+                alternative-text="Like" class=" slds-m-left_x-small" data-button-number="04"></lightning-button-icon-stateful>
+                  <p class="slds-m-left_small slds-col slds-size_7-of-12">{x.nameCode}</p>
+                  <p class="slds-col slds-size_2-of-12">Status: {x.Product_Status__c}</p>
+                  <p class="slds-col slds-size_2-of-12">Floor: ${x.Floor_Price__c}</p>
             </div>
-              <div class="slds-col slds-size_1-of-3">
-                <c-product2-look-up onnewproduct={handleProduct}
-                onclearprod={handleClear}></c-product2-look-up>
-            </div>  
-            </template>
+          </lightning-layout-item>
+        </template>
+      </lightning-layout>
+      </div>
+
+    </template>
+                                
+<!-- Step 3 edit price -->
         
-        <template if:true={pricebookFound}>
+        <template if:true={haveBookProduct}>
           <div class="slds-scrollable_y" style="height:350px; min-height:350px;">
             <table class="slds-table slds-table_cell-buffer slds-table_bordered slds-table_striped" aria-label="Example table of Opportunities with striped rows">
               <thead>
@@ -115,19 +124,19 @@
                                                   value={x.flrPrice} formatter="currency" step="0.01"></lightning-input>
                 </div>
                 </td>
-              <td data-label="Close Date">
+              <td data-label="list_price">
               <div class="slds-truncate" title="List Price">
                 <lightning-input type="number" name={x.Product2Id} read-only={x.readOnly} onchange={handleUnitPrice}
                                                 value={x.UnitPrice} formatter="currency" step="0.01" ></lightning-input>
               </div>
               </td>
-              <td data-label="Floor">
+              <td data-label="Margin">
               <div class="slds-truncate" title="List Margin">
                 <lightning-input type="number" name={x.Product2Id} read-only={x.readOnly} onchange={handleListMargin} 
                                                 value={x.List_Margin__c}  step="0.01"></lightning-input>
               </div>
               </td>
-              <td data-label="Hold Margin">
+              <td data-label="Hold_Margin">
                 <div class="slds-truncate" title="Hold Margin">
                   <lightning-input type="checkbox" name={x.Product2Id} disabled={x.readOnly} onchange={handleCheck} 
                                                 checked={x.Hold_Margin__c}  ></lightning-input>

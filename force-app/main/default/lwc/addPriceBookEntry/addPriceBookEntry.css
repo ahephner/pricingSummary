@@ -25,3 +25,10 @@
     font-weight: 700;
     border-radius: 15px;
 }
+
+.exampleHolder{
+    position: relative;
+    display: inline-block;
+    width: 80px;
+    height: 80px;
+}
