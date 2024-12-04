@@ -1,0 +1,34 @@
+.table{
+    width: 88%;
+    height: 211px
+}
+
+.lineUp{
+    display: inline-flex;
+}
+
+.searchBar{
+    width: 600px;
+}
+
+.outBox{
+    border: 2px solid #121211;
+}
+
+.container{
+    border-bottom: 2px solid #847f7f;
+    display: inline-flex;
+    width: 100%;
+    height: 43px;
+    margin-top: 5px;
+    font-size: larger;
+    font-weight: 700;
+    border-radius: 15px;
+}
+
+.exampleHolder{
+    position: relative;
+    display: inline-block;
+    width: 80px;
+    height: 80px;
+}

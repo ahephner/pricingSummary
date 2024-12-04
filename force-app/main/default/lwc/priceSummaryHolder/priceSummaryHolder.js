@@ -85,16 +85,18 @@ export default class PriceSummaryHolder extends LightningElement {
         let index = evt.target.name; 
         this.fetchedData[index].readOnly = false; 
     }
-    showInfo = false; 
-    async handleAverages(evt){
-        let wait = await this.letSpreadBreath(400)
-        this.showInfo = true; 
-        this.avgProps = {
-            unitPrice: evt.detail?.unitprice ?? 'not found',
-            margin: evt.detail?.margins ?? 'not found',
-            productId: this.productId
-        }
-    }
+
+    //NOT USED ANYMORE USED TO SHOW PRICE BOOK AVERAGES. MORE INFO FOUND IN DISPLAYTABLE JS ON COMMENTED OUT FUNCTION alertPricingUpdate
+    // showInfo = false; 
+    // async handleAverages(evt){
+    //     let wait = await this.letSpreadBreath(400)
+    //     this.showInfo = true; 
+    //     this.avgProps = {
+    //         unitPrice: evt.detail?.unitprice ?? 'not found',
+    //         margin: evt.detail?.margins ?? 'not found',
+    //         productId: this.productId
+    //     }
+    // }
 
     counterInfo(){
         this.template.querySelector("c-display-table").counterProds();

@@ -2,12 +2,15 @@ import { LightningElement } from 'lwc';
 import singlePicklist from '@salesforce/apex/lwcHelper.getPickListValues'; 
 import LightningAlert from 'lightning/alert';
 import AddPriceBoookEntry from 'c/addPriceBookEntry'; 
+import AddCustomerGroups from 'c/addCustomerGroups';
 import savePBE from '@salesforce/apex/getPriceBooks.savePBE';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
+
 export default class PriceSummary extends LightningElement {
     hideFilter = true;
     limitValue = 'no';
     orderByValue = 'none';
+    
     product2Id;
     accountId;
     primaryCategory;   
@@ -106,6 +109,15 @@ export default class PriceSummary extends LightningElement {
         // if(hideFilter){
         //     this.handleSearch()
         // }
+    }
+    async addToPricebook(){
+        const res = await AddCustomerGroups.open({
+            size: 'medium',
+            description: 'Accessible description of modal\'s purpose',
+            content: 'Passed into content api',
+        }).then((back)=>{
+            console.log('back ', back)
+        })
     }
     async addProduct(){
         const result = await AddPriceBoookEntry.open({

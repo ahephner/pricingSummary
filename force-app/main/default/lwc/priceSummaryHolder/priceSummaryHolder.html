@@ -5,10 +5,7 @@
             onnewcust={newAccountGetPB}
             oncounterinfo={counterInfo}></c-price-summary>
 
-    <!-- Show info like averages open close etc -->
-    <template if:true={showInfo}>       
-        <c-pricing-info lwc:spread={avgProps}></c-pricing-info>
-    </template>
+            <p>place holder for child pricebook info</p>
         </div>
         <!-- <template if:true={foundPrice}>
             <div class="slds-col slds-size_1-of-2">
@@ -19,9 +16,14 @@
         <div class="slds-col slds-size_2-of-3">
             <c-display-table lwc:spread={childProps}
                              accountpricebooks={acctPriceBooks}
-                             onnewaverage={handleAverages}>
+                             >
             </c-display-table>
         </div>
     </div>
 
 </template>
+
+    <!-- Show info like averages open close etc -->
+    <!-- <template if:true={showInfo}>       
+        <c-pricing-info lwc:spread={avgProps}></c-pricing-info>
+    </template> -->

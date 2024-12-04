@@ -28,6 +28,7 @@ export default class AddPriceBookEntry extends LightningModal {
     selectedRows = [];
     selectedPriceBookId = [];
     prodsFound = [];
+    searchLabel = 'Search Price Books' 
     btnText = 'Add Products'; 
     showResult = false; 
     @track displayText = []; 
@@ -88,6 +89,7 @@ export default class AddPriceBookEntry extends LightningModal {
                 let check = this.selectedPriceBookId.length>0 ? true: false;
                 if(check){
                     this.btnText = 'Edit Price';
+                    this.searchLabel = 'Search Products'
                     //this.selectedPriceBookId = this.selectedRows.map(x=>x.Id)
                     this.pricebookFound = false; 
                     this.addProducts = true; 
@@ -221,7 +223,7 @@ export default class AddPriceBookEntry extends LightningModal {
                     flrPrice: x[0].Floor_Price__c,
                     Product_Cost__c: x[0].Product_Cost__c,
                     UseStandardPrice: false,
-                    Hold_Margin__c: false,
+                    Hold_Margin__c: true,
                     Hold_Rounded_Margin__c: false,
                     IsActive: true,
                     isChanged__c: false,

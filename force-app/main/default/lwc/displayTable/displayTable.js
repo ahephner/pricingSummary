@@ -105,7 +105,7 @@ export default class DisplayTable extends LightningElement {
             }).then((x)=>{
                 console.log(2, this.fetchedData)
                this.productCost = this.fetchedData[0]?.Product_Cost__c ?? 0; 
-               this.alertPriceUpdate(); 
+               //this.alertPriceUpdate(); 
             })
         }else if(this.accountId != ''){
             allPriceBooks({priceBookIds: this.accountpricebooks, productId:this.productId})
@@ -150,7 +150,7 @@ export default class DisplayTable extends LightningElement {
                 }).then((x)=>{
                     console.log(1, this.fetchedData)
                    this.productCost = this.fetchedData[0]?.Product_Cost__c ?? 0; 
-                   this.alertPriceUpdate(); 
+                   //this.alertPriceUpdate(); 
                 })
         }else if(this.accountId === ''){
             getProductPrice({productId: this.productId, priceField: this.priceSearchField, orderBy:this.apexOrderBy})
@@ -191,7 +191,7 @@ export default class DisplayTable extends LightningElement {
                 }).then((x)=>{
                 //console.log(1, this.fetchedData)
                    this.productCost = this.fetchedData[0]?.Product_Cost__c ?? 0; 
-                   this.alertPriceUpdate(); 
+                   //this.alertPriceUpdate(); 
                 })
         }
         this.foundProducts = true;
@@ -239,7 +239,7 @@ export default class DisplayTable extends LightningElement {
         }).then((x)=>{
         //console.log(1, this.fetchedData)
            this.productCost = this.fetchedData[0]?.Product_Cost__c ?? 0; 
-           this.alertPriceUpdate(); 
+           //this.alertPriceUpdate(); 
         })
 
         this.foundProducts = true;
@@ -510,7 +510,7 @@ export default class DisplayTable extends LightningElement {
             
         }
     }).then(()=>{
-        this.alertPriceUpdate()
+        //this.alertPriceUpdate()
     }).catch((error)=>{
         console.error(error)
     })
@@ -533,24 +533,27 @@ export default class DisplayTable extends LightningElement {
     }
    }
    //marginCalc()
-
+   
+   
+   //NOT USED ANYMORE THIS USED TO ALERT THE MAIN COMPONENT TO UPDATE AVERAGE MARGINS PRICING ETC IF YOU WANT TO USE AGAIN
+   //NEED TO ADD onnewaverage={handleAverages} TO c-display-table and move  component back into template
    //update the priceInfo component
-   alertPriceUpdate(){
-    this.averageUnitPrice = roundNum(this.getAverage(this.fetchedData, 'UnitPrice'),2);
+   //alertPriceUpdate(){
+    //this.averageUnitPrice = roundNum(this.getAverage(this.fetchedData, 'UnitPrice'),2);
     //cost shuold be same across board 
     //price can be anything here using average
     //returnDecimalBoolean true/false do you want full number or dec.  
-    this.averageMarginUp = roundNum(this.getAverage(this.fetchedData, 'List_Margin__c'),2)
+    //this.averageMarginUp = roundNum(this.getAverage(this.fetchedData, 'List_Margin__c'),2)
     
-    const averages = new CustomEvent('newaverage',{
-        detail:{
-            unitprice: this.averageUnitPrice,
-            margins: this.averageMarginUp
-        }
-    })
+    //const averages = new CustomEvent('newaverage',{
+        //detail:{
+            //unitprice: this.averageUnitPrice,
+           // margins: this.averageMarginUp
+       // }
+   //})
 
-    this.dispatchEvent(averages);
+    //this.dispatchEvent(averages);
     //return refreshApex(this.fetchedData)
-   }
+   //}
 
 }
