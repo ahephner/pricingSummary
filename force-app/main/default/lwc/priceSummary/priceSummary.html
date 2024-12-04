@@ -14,8 +14,9 @@
     onclick={addProduct}></lightning-button>
     <div class="slds-grid">
         <div class="slds-col slds-size_2-of-3 slds-m-left_small">
-            <c-product2-look-up onnewproduct={handleProduct}
-                                onclearprod={handleClear}></c-product2-look-up>
+            <c-price-book-look-up onnewpricebook={handlePriceBook}
+            onclearbookid={handleClear}
+            styletype={priceBookDropStyle}></c-price-book-look-up>
         </div>
         <div class="slds-col slds-size_1-of-3 slds-m-left_small slds-m-top_large">
             <lightning-button 
@@ -38,7 +39,7 @@
             <template lwc:else>
                 <lightning-icon  class='slds-m-left_x-small slds-m-bottom_x-small' icon-name="utility:close" alternative-text="Connected" size="xx-small"
             title="xx-small size" onclick={showFilter}></lightning-icon>
-            <div class="slds-grid">
+            <div class="slds-grid slds-wrap">
                 <div class="slds-col slds-size_1-of-3 filters">
                     <!-- https://github.com/ahephner/lwcSummer/blob/df04b0d3bdb98ed54fb31ebff081c8bb55599aac/force-app/main/default/lwc/rewardsFlow/rewardsFlow.js -->
                     <c-account-look-up onnewaccount={handleAccount}
@@ -61,9 +62,9 @@
                     onchange={handleLimits} ></lightning-combobox> -->
                 </div>
                 <div class="slds-col slds-size_1-of-3 slds-m-left_small">
-                    <c-price-book-look-up onnewpricebook={handlePriceBook}
-                                          onclearbookid={handleClear}
-                                          styletype={priceBookDropStyle}></c-price-book-look-up>
+                    <c-product2-look-up onnewproduct={handleProduct}
+                    onclearprod={handleClear}></c-product2-look-up>
+
                     
                     <!-- <lightning-combobox
                     name="progress"
@@ -80,6 +81,13 @@
                     options={priceFields}
                     onchange={handlePriceField} ></lightning-combobox> -->
                 </div>
+                <div class="slds-col slds-size_1-of-1 slds-m-top_medium">
+                <lightning-button 
+                  variant="success"
+                  label="Products Updated By Counter" 
+                  onclick={getCounterUpdates} 
+                ></lightning-button>
+            </div>
             </div>
         </template>
 

@@ -1,0 +1,55 @@
+<style type="text/css">table.table843 {border:solid black 1px; border-collapse:collapse; border-spacing:0px;font-family:Arial Unicode MS,sans-serif; font-size:10pt; width:100% }
+    .table843header {text-align:center;font-weight:bold;border:solid black 1px;color:#FFFFFF;background-color:#167000;}
+    .table843footer {text-align:right;font-weight:bold;border:solid black 1px; height: 30px}
+    .table843tr:second-child  {text-align:center;font-weight:bold;border:solid black 1px;color:#FFFFFF;background-color:#167000;}
+    .table843RowEven{border:solid black 1px;}
+    .table843RowOdd{border:solid black 1px;}
+    .table843col0{text-align:center;font-weight:bold;border:solid black 1px;color:#FFFFFF;background-color:#167000;}
+    .table843col1{border:solid black 1px;text-align:center;font-weight:normal;font-size:12pt;font-family:Arial Unicode MS,sans-serif;}
+    .table843col2{border:solid black 1px;text-align:left;font-weight:normal;font-size:12pt;font-family:Arial Unicode MS,sans-serif;}
+    .table843col3{border:solid black 1px;text-align:center;font-weight:normal;font-size:12pt;font-family:Arial Unicode MS,sans-serif;}
+    .table843col4{border:solid black 1px;text-align:center;font-weight:normal;font-size:12pt;font-family:Arial Unicode MS,sans-serif;}
+    .table843col5{border:solid black 1px;text-align:left;font-weight:normal;font-size:12pt;font-family:Arial Unicode MS,sans-serif;}
+    .table843col6{border:solid black 1px;text-align:left;font-weight:normal;font-size:12pt;font-family:Arial Unicode MS,sans-serif;}
+    .table843col7{border:solid black 1px;text-align:left;font-weight:normal;font-size:12pt;font-family:Arial Unicode MS,sans-serif;}
+   .table843col8{border:solid black 1px;text-align:center;font-weight:normal;font-size:12pt;font-family:Arial Unicode MS,sans-serif;}
+   .table843col9{border:solid black 1px;text-align:center;font-weight:normal;font-size:12pt;font-family:Arial Unicode MS,sans-serif;}
+  .table843col10{border:solid black 1px;text-align:center;font-weight:normal;font-size:12pt;font-family:Arial Unicode MS,sans-serif;}
+</style>
+<table class="table843">
+	<tbody>
+	</tbody>
+	<tbody style="page-break-inside: avoid !important; page-break-before: auto !important;"><!--{{! 
+    <lineitemssoql> 
+  <class>table843</class> 
+  <listname>App_Product__c</listname>
+  <column>area__c</column> 
+<column format-date="MM/dd/yyyy">application__r.Date__c</column>
+  <column>Product_Name__c</column>
+  <column>Report_Rate__c</column>
+<column format-number="#,###">Required_Units__c</column>	
+    <column format-number="#,###.##">N__c</column> 
+  <column format-number="#,###.##">P__c</column>
+  <column format-number="#,###.##">K__c</column>
+  <column format-number="$#,###.##">cost_Per_M__c</column>
+<column format-number="$#,###.##">Cost_Per_Acre__c</column>
+<column format-number="#,###.##">Total_Used_f__c</column>
+  <where>Program_Id__c='{{!ObjectID15}}'</where>
+  <orderby>application__r.SDocNameDate__c</orderby>
+  <groupby type="newtable">Area__c</groupby>
+  <groupbyheader position="after-group">Application Date,Product, Report Rate, Required Units, N, P, K, Cost Per M, Cost Per Acre, Total Used Oz/Lb</groupbyheader>
+<groupbyfooter>
+    <tr><td colspan="11" class="table843footer">Notes: {{Application__r.note__c}}</td></tr>
+  </groupbyfooter>
+</lineitemssoql>
+    }}-->
+	</tbody>
+</table>
+
+<table class="table843"><!-- Render the group --><!-- Notes Section -->
+	<tbody>
+		<tr>
+			<td class="table843footer" colspan="11">Notes: {{!App_Product__c.Application__r.note__c}}</td>
+		</tr>
+	</tbody>
+</table>

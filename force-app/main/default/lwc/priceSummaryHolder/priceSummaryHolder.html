@@ -2,7 +2,8 @@
     <div class="slds-grid">
         <div class="slds-col slds-size_1-of-3">
             <c-price-summary onsearchvars={handleSearch}
-            onnewcust={newAccountGetPB}></c-price-summary>
+            onnewcust={newAccountGetPB}
+            oncounterinfo={counterInfo}></c-price-summary>
 
     <!-- Show info like averages open close etc -->
     <template if:true={showInfo}>       

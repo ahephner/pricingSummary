@@ -95,4 +95,8 @@ export default class PriceSummaryHolder extends LightningElement {
             productId: this.productId
         }
     }
+
+    counterInfo(){
+        this.template.querySelector("c-display-table").counterProds();
+    }
 }
