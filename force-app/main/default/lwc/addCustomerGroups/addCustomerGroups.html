@@ -17,29 +17,37 @@
             </div>
       </template>
       <template if:false={showPriceBooks}>
-        <div class="slds-grid slds-wrap">
-          <lightning-input 
-            type="text"
-            label="Price Book Name"
-            required
-            class="slds-col slds-size_1-of-1"
-            lwc:ref="pbName"
-          ></lightning-input>
-          <lightning-button-group
-          class="slds-col slds-size_1-of-1 slds-float_right">
-            <lightning-button 
-              variant="destructive"
-              label="Cancel" 
-              onclick={cancelPriceBook} 
-            ></lightning-button>
-            <lightning-button 
-              variant="success"
-              label="Save" 
-              onclick={createPriceBook}
-            ></lightning-button>
-            
-          </lightning-button-group>
+        <template lwc:if={loaded}>
+          <div class="slds-grid slds-wrap">
+            <lightning-input 
+              type="text"
+              label="Price Book Name"
+              required
+              class="slds-col slds-size_1-of-1"
+              lwc:ref="pbName"
+            ></lightning-input>
+            <span class="slds-col slds-size_5-of-6"></span>
+            <div class="slds-col slds-size_1-of-6  slds-m-top_medium slds-float_right">
+                <lightning-button 
+                  variant="destructive"
+                  label="Cancel" 
+                  onclick={cancelPriceBook} 
+                ></lightning-button>
+                <lightning-button 
+                  variant="success"
+                  label="Save" 
+                  onclick={createPriceBook}
+                ></lightning-button>
+                
+            </div>
+          </div>
+        </template>
+        <template lwc:else>
+          <div class="exampleHolder">
+            <lightning-spinner alternative-text="Loading" size="x-small"></lightning-spinner>
         </div>
+        </template>
+
       </template>
       
     </lightning-modal-body>
