@@ -1,7 +1,9 @@
 <template>
     <lightning-modal-header label="Add Customers to Group Price Books"></lightning-modal-header>
     <lightning-modal-body>
+<!-- SELECT PRICE BOOKS -->
       <template if:true={showPriceBooks}>
+        <template lwc:if={loaded}>
         <div class="slds-grid slds-wrap">
               <p class="slds-col slds-size_1-of-1"><i>Note: This list is limited to Shared Price Books. Limit 1 at this time</i></p> 
               <br/>
@@ -15,8 +17,58 @@
                 ></lightning-button>
               </div>
             </div>
+            <div class="outside slds-scrollable_y  outBox" style="height:30rem;width:100%">
+              <template for:each={displayText} for:item="x">
+                  <div key={x.Id}>
+                      <div class="container">
+                          <lightning-button-icon-stateful icon-name="utility:check" 
+                                                          size="small" selected={x.checked}
+                                                          onclick={handleSelectBook} name={x.Id}
+                                                          alternative-text="Like" class="slds-m-left_xx-small" data-button-number="04"></lightning-button-icon-stateful>
+                          <p class="slds-m-left_small">{x.Pricebook2.Name}</p>
+                      </div>
+                  </div>
+                  </template>
+                </div>
+              </template>
+            <template lwc:else>
+              <div class="exampleHolder">
+                <lightning-spinner alternative-text="Loading" size="x-small"></lightning-spinner>
+            </div>
+            </template>
       </template>
-      <template if:false={showPriceBooks}>
+<!-- ADD CUSTOMERS -->
+      <template if:true={addAccounts}>
+        <div class="slds-grid slds-wrap">
+          <p class="slds-col slds-size_1-of-1">Select Customers to add.</p> 
+            <br/>
+              <div class="slds-col slds-size_1-of-1 lineUp">
+                <lightning-input type="text" class='searchBar' label='Search Customers' onchange={handleCustSearch}></lightning-input> 
+            </div>
+          </div>
+          <div class="outside slds-scrollable_y  outBox" style="height:30rem;width:100%">
+            <lightning-layout multiple-rows="true">
+            <template if:false={showCustResult}>
+              <div class="exampleHolder">
+                <lightning-spinner alternative-text="Loading" size="x-small"></lightning-spinner>
+            </div>
+            </template>
+            <template if:true={showCustResult} for:each={custFound} for:item="x">
+              <lightning-layout-item size='12' key={x.Id}>
+                <div class="container slds-grid">
+                  <lightning-button-icon-stateful icon-name="utility:check" 
+                    size="small" selected={x.checked}
+                    onclick={handleCustomer} name={x.Id}
+                    alternative-text="Like" class=" slds-m-left_x-small" data-button-number="04"></lightning-button-icon-stateful>
+                      <p class="slds-m-left_small slds-col slds-size_7-of-12">{x.nameCode}</p>
+                </div>
+              </lightning-layout-item>
+            </template>
+          </lightning-layout>
+          </div>
+      </template>
+<!-- CREATE NEW PRICE BOOK  -->
+      <template if:true={newPriceBook}>
         <template lwc:if={loaded}>
           <div class="slds-grid slds-wrap">
             <lightning-input 
@@ -26,6 +78,14 @@
               class="slds-col slds-size_1-of-1"
               lwc:ref="pbName"
             ></lightning-input>
+            <div class="slds-col slds-size_1-of-1 slds-m_top-small">
+              <p class="slds-text-heading_medium">You are creating a Level 3 Price Book</p>
+              <br/>
+              <p class="slds-text-longform">A Shared Price Book differs from a National/Group Price Book in that if a 
+                Customer has the same SKU in their own Price Book, it will prioritize that 
+                customer’s Price of the item over the Custom Price. (more like suggested 
+                pricing that a rep can add multiple customers to one book).</p>
+            </div>
             <span class="slds-col slds-size_5-of-6"></span>
             <div class="slds-col slds-size_1-of-6  slds-m-top_medium slds-float_right">
                 <lightning-button 
@@ -51,4 +111,13 @@
       </template>
       
     </lightning-modal-body>
+    <template lwc:if={newPriceBook}>
+
+    </template>
+    <template lwc:else>
+      <lightning-modal-footer>
+        <lightning-button label="Cancel" onclick={checkClose}></lightning-button>
+        <lightning-button label={btnText} onclick={moveScreen}></lightning-button>
+    </lightning-modal-footer>
+    </template>
 </template>

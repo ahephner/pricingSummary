@@ -87,10 +87,13 @@ public class omsOppUpdatePricing {
         }catch(exception e){
             Database.rollback(sp);
             messBack = string.valueOf(e);
+            system.debug(messBack); 
         }
 
         return messBack;
     }
+    
+    ///SHARED PRICE BOOK LOGIC
      @AuraEnabled
     public static string createSharePriceBook(string name){
         string back; 
@@ -110,6 +113,61 @@ public class omsOppUpdatePricing {
             back = string.valueOf(e);
         }
 		return back;         
+        
+    }
+    
+        //get all pricebooks for adding products to multiple price books
+    @AuraEnabled(cacheable = true)
+    public static list<BuyerGroupPricebook> getAllSharedBooks(){
+        list<BuyerGroupPricebook> foundProducts = [SELECT Pricebook2.Name, IsActive, Pricebook2Id, Pricebook2.My_Price_Book__c FROM BuyerGroupPricebook 
+                                                   WHERE isActive = true  AND Priority = 3];
+        //and Pricebook2.My_Price_Book__c = true
+        if(foundProducts.size()>0){
+            return foundProducts;
+        }else{
+            return null; 
+        }
+    }
+    @AuraEnabled
+    public static string createGroupPriceBook(string priceBookId, list<string> alreadyBuyers, list<BuyerAccount> newBuyers){
+        //Rollback point
+        Savepoint sp = Database.setSavepoint();
+        string messBack;
+        try{
+         
+            list<BuyerGroupMember> newMembers = new list<BuyerGroupMember>(); 
+            //careful we are not passing in the actual price book id here var is bad. Need to pass ID of the buyergroupPricebook
+            Id buyerGroupId = [select id, BuyerGroupId from BuyerGroupPricebook where id =:priceBookId].BuyerGroupId;
+            
+            if(alreadyBuyers.size()>0){
+                for(string x:alreadyBuyers){
+                    BuyerGroupMember bgm = new BuyerGroupMember();
+                    bgm.BuyerId = x;
+                    bgm.BuyerGroupId = buyerGroupId;
+                    newMembers.add(bgm); 
+                }
+            }
+
+            //enable buyer accounts
+            if(newBuyers.size()>0){
+            	Database.SaveResult[] buyerGroups = Database.insert(newBuyers, true); 
+                
+                for(BuyerAccount sr:newBuyers){
+                    BuyerGroupMember bgm = new BuyerGroupMember();
+                    bgm.BuyerId = sr.BuyerId;
+                    bgm.BuyerGroupId = buyerGroupId;
+                    newMembers.add(bgm); 
+                }
+            }
+
+            Database.SaveResult[] bgmInsert = Database.insert(newMembers, true);
+            messBack = 'success';
+        }catch(exception e){
+            Database.rollback(sp);
+            messBack = string.valueOf(e); 
+            system.debug(messBack); 
+        } 
+        return messBack; 
         
     }
 }

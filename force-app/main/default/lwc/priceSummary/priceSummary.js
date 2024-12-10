@@ -4,6 +4,7 @@ import LightningAlert from 'lightning/alert';
 import AddPriceBoookEntry from 'c/addPriceBookEntry'; 
 import AddCustomerGroups from 'c/addCustomerGroups';
 import savePBE from '@salesforce/apex/getPriceBooks.savePBE';
+import createSharedBook from '@salesforce/apex/omsOppUpdatePricing.createGroupPriceBook'; 
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 
 export default class PriceSummary extends LightningElement {
@@ -116,7 +117,17 @@ export default class PriceSummary extends LightningElement {
             description: 'Accessible description of modal\'s purpose',
             content: 'Passed into content api',
         }).then((back)=>{
-            console.log('back ', back)
+            //handle user wants to stop
+            if(back==='aborted'){
+                return; 
+            }else{
+                const {bookId, customers, needBuyer} = back; 
+                if(bookId.length>0 && (customers.length>0|| needBuyer.length>0)){
+                    let newEntries = createSharedBook({priceBookId: bookId[0], alreadBuyers: customers, newBuyers:needBuyer})
+                    console.log(newEntries);
+    
+                }
+            }
         })
     }
     async addProduct(){
