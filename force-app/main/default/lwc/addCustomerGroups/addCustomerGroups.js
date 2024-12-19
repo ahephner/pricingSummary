@@ -68,6 +68,7 @@ export default class AddCustomerGroups extends LightningModal {
             let create = await createSharePrice({name:x}) 
             if(create.includes('success')){
                 let mess = create.replace('success ', '')
+                this.selectedPriceBookId.push(mess); 
                 //toast does not work in modal
             }else{
                 //toast does not work 
@@ -75,6 +76,7 @@ export default class AddCustomerGroups extends LightningModal {
                   
             }
             this.loaded = true; 
+            this.btnText = 'Save and Close'; 
             this.showPriceBooks = false;
             this.newPriceBook = false; 
             this.addAccounts = true;
@@ -232,6 +234,8 @@ export default class AddCustomerGroups extends LightningModal {
                    customers: this.buyerCust,
                    needBuyer: this.needBuyerEnabled
                 }
+                console.log(back)
+                
         this.close(back);
     }
     cancelPriceBook(){

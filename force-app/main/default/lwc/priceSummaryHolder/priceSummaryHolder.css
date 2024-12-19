@@ -48,3 +48,10 @@
     position: relative;
     left:310px; 
 }
+.iconSize{
+    background-color: rgb(255, 255, 255);
+    border-radius: 0;
+    border: 1px solid #747474;
+    width: .75rem;
+    padding-top: 11%;
+}

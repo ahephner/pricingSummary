@@ -1,0 +1,25 @@
+<template>
+    <!-- {account} -->
+     <lightning-card icon-name="standard:account" variant="base">
+       <div slot="title">
+           Avalaible Price Books
+       </div>
+       <div slot="actions">
+     
+       </div>
+       <div slot="footer">
+     
+       </div>
+       <div>
+         <!-- Card Body  -->
+        <ul class="slds-m-left_small">
+            <template if:true={accountbooks} for:each={accountbooks} for:item="x" for:index="index">
+              <li key={x.Id}>
+                  <span>{x.Priority}. {x.Name} </span> 
+              </li>
+            </template>
+        </ul>
+<p>The price shown for this product is determined by a priority-based system that evaluates all available pricing rules for the customer and selects the most specific or highest-priority option. For ABC Golf Course, the system considered their membership in multiple buying groups and applied the pricing rule with the highest priority. In this case, the chosen price reflects [insert applicable group here, e.g., "Customer-Specific Pricing"], which takes precedence over broader group or standard price book pricing. If this product had not been found in any customer or group price book associated with ABC Golf Course, the system would have defaulted to the Level A price from the corporate price book, as it has higher priority than the standard price book. This ensures that the most relevant and beneficial price is automatically applied based on the customer's relationships and agreements.</p>
+       </div>
+     </lightning-card>
+</template>

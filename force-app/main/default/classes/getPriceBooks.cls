@@ -38,8 +38,8 @@ public with sharing class getPriceBooks {
         list<pricebookentry> priorityPrice = new list<pricebookentry>();
         for(string x:priceBookIds){
               priorityPrice = [select Id, Pricebook2Id,Pricebook2.Name,Pricebook2.IsStandard,Pricebook2.Priority__c, List_Margin__c, Product2Id,Cost_Has_Decreased__c, 
-                                          UnitPrice, Floor_Price__c, Level_1_UserView__c,Level_One_Margin__c, Level_2_UserView__c,Level_2_Margin__c,
-                                          Product_Cost__c, Sub_Cat__c from PricebookEntry 
+                                          UnitPrice, Floor_Price__c,Hold_Margin__c, Level_1_UserView__c,Level_One_Margin__c, Level_2_UserView__c,Level_2_Margin__c,Floor_Margin__c,
+                                          Product_Cost__c, Sub_Cat__c, List_Margin_Calculated__c, Product2.ERP_Name__c from PricebookEntry 
                                           where IsActive = true and Pricebook2Id =:x and Product2ID=: productId];  
              
             if(priorityPrice.size()==0){
@@ -91,7 +91,7 @@ public with sharing class getPriceBooks {
      
         string find = 'select Floor_Price__c, Level_One_Margin__c, Level_1_UserView__c, Level_2_Margin__c, Level_2_UserView__c,Product2.Name, Product2.ProductCode, ' 
            + 'Pricebook2Id, UnitPrice, Product_Cost__c, Price_Book_Name__c,Name, Pricebook2.IsStandard,ProductCode, Product2Id, List_Margin__c,List_Margin_Calculated__c, Hold_Margin__c,'
-           + 'Floor_Margin__c, Min_Margin__c from PricebookEntry'
+           + 'Floor_Margin__c, Min_Margin__c, Product2.ERP_Name__c from PricebookEntry'
         + ' where IsActive = true and pricebook2.My_Price_Book__c= true and Product2ID=\''+ productId+ '\''; 
         find += orderBy;     
         system.debug(find); 
@@ -140,8 +140,8 @@ public with sharing class getPriceBooks {
     public static list<pricebookentry> addToPriceBook(string pricebook, string productId, string orderBy){
      
         string find = 'select Floor_Price__c, Level_One_Margin__c, Level_1_UserView__c, Level_2_Margin__c, Level_2_UserView__c,Product2.Name, Product2.ProductCode, ' 
-           + 'Pricebook2Id, UnitPrice, Product_Cost__c, Price_Book_Name__c,Name, Pricebook2.IsStandard,ProductCode, Product2Id, List_Margin__c,List_Margin_Calculated__c, Hold_Margin__c, '
-           + 'Floor_Margin__c, Min_Margin__c, Agency_Product__c from PricebookEntry'
+           + 'Pricebook2Id, UnitPrice, Product_Cost__c, Price_Book_Name__c,Name, Pricebook2.Name, Pricebook2.IsStandard,ProductCode, Product2Id, List_Margin__c,List_Margin_Calculated__c, Hold_Margin__c, '
+           + 'Floor_Margin__c, Min_Margin__c, Agency_Product__c, Product2.ERP_Name__c from PricebookEntry'
         + ' where IsActive = true and Pricebook2Id =\''+ pricebook + '\''; 
         if(!string.isBlank(productId)){
             find += ' and Product2ID=\''+ productId+ '\''; 
@@ -198,6 +198,13 @@ public with sharing class getPriceBooks {
         wrapBack.salesAVG = Sales;
         wrapBack.oppLines = oppLineItems; 
         return wrapBack;
+    }
+    
+        //used in pricing summary to get the account of a buyer group
+    @AuraEnabled(cacheable = true)
+    public static string getAccId(string buyer){
+        string acc = [select BuyerId from BuyerGroupMember where BuyerGroupId =: buyer limit 1].BuyerId;
+        return acc; 
     }
     ///TO SAVE PBE AND UPDATE PRODUCT2 AT ONE TIME. Records organized in lwc
     // @auraEnabled

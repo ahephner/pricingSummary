@@ -1,19 +1,35 @@
 <template>
     <div class="slds-grid">
-        <div class="slds-col slds-size_1-of-3">
+        <template if:true={showAll}>
+        <div class={searchBoxClass}>
+
             <c-price-summary onsearchvars={handleSearch}
             onnewcust={newAccountGetPB}
             oncounterinfo={counterInfo}></c-price-summary>
-
-            <!-- <p>place holder for child pricebook info</p> -->
+            
+            <template if:true={accSearch}>
+                <c-price-summary-price-book-info
+                accountbooks={passedaccount}></c-price-summary-price-book-info>
+                
+            </template>
         </div>
+    </template>
+    <div class='iconSize' onclick={handleDisplay}>
+        <lightning-icon icon-name={iconName} alternative-text="Utility image" title="Image" size="xx-small"></lightning-icon>
+    </div>
+    <!-- <lightning-button-icon icon-name={iconName}
+    class="iconSize"
+    alternative-text="Hide" 
+    title="Show Hide"
+    onclick={handleDisplay}>
+    </lightning-button-icon> -->
         <!-- <template if:true={foundPrice}>
             <div class="slds-col slds-size_1-of-2">
                 <p class="slds-text-heading_large">Price Book Name: {priceBookName}</p>
                 <p class="slds-text-heading_large">List Price: {listPrice}</p>
             </div>
         </template> -->
-        <div class="slds-col slds-size_2-of-3">
+        <div class={tableClass}>
             <c-display-table lwc:spread={childProps}
                              accountpricebooks={acctPriceBooks}
                              >

@@ -108,7 +108,7 @@ public class omsOppUpdatePricing {
         //create buyer group price book set priority here
         BuyerGroupPricebook bgmpb = new BuyerGroupPricebook(IsActive=true, BuyerGroupId = bg.Id, Pricebook2Id = pb.Id, priority = 3 );
             insert bgmpb;
-            back = 'success '+ pbName; 
+            back = 'success '+ bgmpb.Id; 
         }catch(exception e){
             back = string.valueOf(e);
         }
@@ -120,8 +120,8 @@ public class omsOppUpdatePricing {
     @AuraEnabled(cacheable = true)
     public static list<BuyerGroupPricebook> getAllSharedBooks(){
         list<BuyerGroupPricebook> foundProducts = [SELECT Pricebook2.Name, IsActive, Pricebook2Id, Pricebook2.My_Price_Book__c FROM BuyerGroupPricebook 
-                                                   WHERE isActive = true  AND Priority = 3];
-        //and Pricebook2.My_Price_Book__c = true
+                                                   WHERE isActive = true  AND Priority = 3 and Pricebook2.My_Price_Book__c = true];
+        //
         if(foundProducts.size()>0){
             return foundProducts;
         }else{
@@ -129,18 +129,19 @@ public class omsOppUpdatePricing {
         }
     }
     @AuraEnabled
-    public static string createGroupPriceBook(string priceBookId, list<string> alreadyBuyers, list<BuyerAccount> newBuyers){
+    public static string createGroupPriceBook(string priceBookId, list<string> allReadyBuyers, list<BuyerAccount> newBuyers){
         //Rollback point
         Savepoint sp = Database.setSavepoint();
         string messBack;
         try{
-         
+         system.debug('already'); 
+         system.debug(allReadyBuyers); 
             list<BuyerGroupMember> newMembers = new list<BuyerGroupMember>(); 
             //careful we are not passing in the actual price book id here var is bad. Need to pass ID of the buyergroupPricebook
             Id buyerGroupId = [select id, BuyerGroupId from BuyerGroupPricebook where id =:priceBookId].BuyerGroupId;
-            
-            if(alreadyBuyers.size()>0){
-                for(string x:alreadyBuyers){
+            system.debug(buyerGroupId); 
+            if(allReadyBuyers.size()>0){
+                for(string x:allReadyBuyers){
                     BuyerGroupMember bgm = new BuyerGroupMember();
                     bgm.BuyerId = x;
                     bgm.BuyerGroupId = buyerGroupId;
@@ -159,8 +160,10 @@ public class omsOppUpdatePricing {
                     newMembers.add(bgm); 
                 }
             }
-
+		
             Database.SaveResult[] bgmInsert = Database.insert(newMembers, true);
+            system.debug('save');
+            system.debug(bgmInsert); 
             messBack = 'success';
         }catch(exception e){
             Database.rollback(sp);

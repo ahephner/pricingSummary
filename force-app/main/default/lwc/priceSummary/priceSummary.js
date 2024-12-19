@@ -123,8 +123,32 @@ export default class PriceSummary extends LightningElement {
             }else{
                 const {bookId, customers, needBuyer} = back; 
                 if(bookId.length>0 && (customers.length>0|| needBuyer.length>0)){
-                    let newEntries = createSharedBook({priceBookId: bookId[0], alreadBuyers: customers, newBuyers:needBuyer})
-                    console.log(newEntries);
+                    // console.log('sending');
+                    // console.log(customers)
+                    // console.log(needBuyer);
+                createSharedBook({priceBookId: bookId[0], allReadyBuyers: customers, newBuyers:needBuyer})
+                   .then((res)=>{
+                    //back message
+                    if(res === 'success'){
+                        this.dispatchEvent(
+                            new ShowToastEvent({
+                                title: 'Price Book Created',
+                                message: 'Please Refresh Screen',
+                                variant: 'success'
+                            })
+                        );
+                    }
+                   }).catch((err)=>{
+                    console.warn(err)
+                                            // Handle error
+                        this.dispatchEvent(
+                            new ShowToastEvent({
+                                    title: 'Error Creating Price Book',
+                                    message: err.body.output.errors[0].message,
+                                    variant: 'error'
+                            })
+                        )
+                   })
     
                 }
             }
@@ -136,6 +160,9 @@ export default class PriceSummary extends LightningElement {
             description: 'Accessible description of modal\'s purpose',
             content: 'Passed into content api',
         }).then((res)=>{
+            if(res==='close'){
+                return; 
+            }
             const recordInputs = res.slice().map(draft =>{
 
                 let Pricebook2Id = draft.Pricebook2Id;
@@ -150,6 +177,7 @@ export default class PriceSummary extends LightningElement {
             return fields;
             })
         
+        
             savePBE({entries: recordInputs})
             .then((res)=>{
                 if(res === 'success'){
@@ -161,6 +189,7 @@ export default class PriceSummary extends LightningElement {
                         })
                     );
                 }
+            
                 this.changesMade = false; 
             }).catch(error => {
                         console.log(error);

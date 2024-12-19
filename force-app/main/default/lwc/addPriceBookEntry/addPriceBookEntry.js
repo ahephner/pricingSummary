@@ -3,9 +3,13 @@ import LightningModal from 'lightning/modal';
 import LightningConfirm from 'lightning/confirm';
 import LightningAlert from 'lightning/alert';
 import checkPriceBooks from '@salesforce/apex/getPriceBooks.addToPriceBook';
-import getPriceBooks from '@salesforce/apex/lwcHelper.getAllBooks';
+import apexPriorityPricing from '@salesforce/apex/getPriceBooks.priorityBestPrice'
+import getAccountId from '@salesforce/apex/getPriceBooks.getAccId';
+import getPriorityPriceBooks from '@salesforce/apex/omsCPQAPEX.getPriorityPriceBooks';
+import getPriceBooks from '@salesforce/apex/lwcHelper.getAllBuyerBooks';
 import getProducts from '@salesforce/apex/lwcHelper.product2LookUp';
 import {roundNum} from 'c/programBuilderHelper';
+import {priorityPricing} from 'c/helperOMS'
 const SEARCH_DELAY = 500;
 const REGEX_SOSL_RESERVED = /(\?|&|\||!|\{|\}|\[|\]|\(|\)|\^|~|\*|:|"|\+|\\)/g;
 //STANDARD_PRICEBOOK = '01s410000077vSKAAY'; 
@@ -20,7 +24,6 @@ export default class AddPriceBookEntry extends LightningModal {
     pricebookFound = true; 
     addProducts = false;
     haveBookProduct = false;
-     
     priceBookDropStyle = 'slds-listbox slds-listbox_vertical slds-dropdown noOffSet'
     loaded = false; 
     colList = columns; 
@@ -28,9 +31,15 @@ export default class AddPriceBookEntry extends LightningModal {
     selectedRows = [];
     selectedPriceBookId = [];
     prodsFound = [];
+    //The next 2 vars are used for adding priority pricing
+    //single price book when updating priority pricing; 
+    accountPriceBook; 
+    //used for adding entries in priority entry
+    priorityPricebooksId = []; 
     searchLabel = 'Search Price Books' 
     btnText = 'Add Products'; 
-    showResult = false; 
+    showResult = false;
+    singlePriceBook; 
     @track displayText = []; 
     connectedCallback() {
         this.handleAllPriceBooks();
@@ -81,16 +90,40 @@ export default class AddPriceBookEntry extends LightningModal {
         this.priceBookName = mess.detail.name; 
         this.pricebookFound = true; 
     }
+     
+    //this function is called below and is used to get price book specifics to the account that is selected. 
+    async accountPriceInfo(m){
+        this.showResult = false; 
+        this.loaded = false;
+        try {
+            let buyerId = m[0].BuyerGroupId;
+            this.accountPriceBook = m[0].Pricebook2Id
+            //get account
+            let accountId = await getAccountId({buyer: buyerId})
+            //get priority price books assocaited with this account
+            let priceData = await getPriorityPriceBooks({accountId: accountId})
+            //helper function to organize the price books 
+            let pricingInfo = await priorityPricing(priceData);
+            this.priorityPricebooksId = [...pricingInfo.priceBookIdArray]; 
+             
+        } catch (error) {
+            console.log('processing price book err=> ',error);
+        }
 
+        this.showResult = true
+        this.loaded = true; 
+    }
     //control moving the screen along
     moveScreen(){
         switch(this.btnText){
             case 'Add Products':
                 let check = this.selectedPriceBookId.length>0 ? true: false;
                 if(check){
+                    this.showResult = false; 
                     this.btnText = 'Edit Price';
                     this.searchLabel = 'Search Products'
-                    //this.selectedPriceBookId = this.selectedRows.map(x=>x.Id)
+                    //this.triggers if one price book use the dynamic pricing otherwise search standard pricebook
+                    this.singlePriceBook = this.selectedPriceBookId.length === 1 && this.selectedPriceBookId[0].Priority ===2 ? this.accountPriceInfo(this.selectedPriceBookId) : false; 
                     this.pricebookFound = false; 
                     this.addProducts = true; 
                     this.showResult = true;
@@ -126,8 +159,10 @@ export default class AddPriceBookEntry extends LightningModal {
             //css class
             let checked = false;
             //for search
-            let searchName = item.Name.toLowerCase(); 
-            return {...item, checked, searchName}
+            let searchName = item.Pricebook2.Name.toLowerCase(); 
+            let iconName = item.Priority === 2 ? 'Account Based': item.Priority === 3 ? 'Group' : item.Priority === 1 ? 'National':item.Priority === 4 ? 'Corp.': ''
+
+            return {...item, checked, searchName, iconName}
         })
 
         this.displayText = [...this.data]
@@ -142,13 +177,17 @@ export default class AddPriceBookEntry extends LightningModal {
                 let base =  JSON.parse(JSON.stringify(this.data))
                 
                 let narrowed = base.filter(item => { 
-                   return item.Name.toLowerCase().includes(searchKey); 
+                   return item.searchName.toLowerCase().includes(searchKey); 
                 });
                 
             this.displayText = [...narrowed]
                 
             }, 300);
     }
+
+    //This is the prodcut search function. It is effected by the first case statement in the move screen. That function checks the length of the pricebooks selected
+    //If there are multiple price books selected it will only search here using the first singlePriceBook. IT gets all product ids at that point from standard price book. 
+    //Otherwise it will use the price book id's from the set in the case function
     showProdResults
     searchTimeOut;
     minSearch = 3;
@@ -185,12 +224,12 @@ export default class AddPriceBookEntry extends LightningModal {
             this.data[ogIndex].checked = check; 
             this.displayText = [...this.displayText]; 
             this.data = [...this.data];
-            !check ? this.removeId(this.displayText[index].Id) : this.selectedPriceBookId.push(this.displayText[index].Id)
+            !check ? this.removeId(this.displayText[index].Id) : this.selectedPriceBookId.push(this.displayText[index])
         }
 
     }
     removeId(id){
-        let x = this.selectedPriceBookId.indexOf(id);
+        let x = this.selectedPriceBookId.map(e=>e.Id).indexOf(id);
         this.selectedPriceBookId.splice(x, 1); 
     }
 
@@ -204,7 +243,12 @@ export default class AddPriceBookEntry extends LightningModal {
     }
     async addProduct(){
         let mess = {detail: 'product'}
-        let back = await checkPriceBooks({pricebook: '01s410000077vSKAAY' , productId: this.product2Id, orderBy:this.apexOrderBy })
+        let back
+        if(this.singlePriceBook === false){
+            back = await checkPriceBooks({pricebook: '01s410000077vSKAAY' , productId: this.product2Id, orderBy:this.apexOrderBy })
+        }else{
+            back = await apexPriorityPricing({priceBookIds: this.priorityPricebooksId, productId:this.product2Id})
+        }
         let add = await this.addList(back);
         this.handleClear(mess)
     }
@@ -219,8 +263,9 @@ export default class AddPriceBookEntry extends LightningModal {
                     Product2Id: this.product2Id,
                     UnitPrice: x[0].UnitPrice,
                     List_Margin__c: this.checkMarg(x[0]),
-                    name: x[0].Name,
+                    name: x[0].Product2.ERP_Name__c,
                     flrPrice: x[0].Floor_Price__c,
+                    PriceBookName: x[0].Pricebook2.Name,
                     Product_Cost__c: x[0].Product_Cost__c,
                     UseStandardPrice: false,
                     Hold_Margin__c: true,
@@ -282,7 +327,7 @@ export default class AddPriceBookEntry extends LightningModal {
         for(let i = 0; i< this.newProds.length; i++){
             let add = this.selectedPriceBookId.map((pricebookId)=>{
                 let newObj = {...this.newProds[i]}
-                newObj.Pricebook2Id = pricebookId;
+                newObj.Pricebook2Id = pricebookId.Pricebook2Id;
                 return newObj
             })
             updated = [...updated, ...add]
@@ -333,6 +378,22 @@ export default class AddPriceBookEntry extends LightningModal {
         }
     }
 
+    instructions = 'To use priority pricing select one account based price book. The initial editable price will be based on account priority. Meaning it will check if the product is in National, Account, Group etc until it finds the product and list price. This price is editable. To mass add products to price books. Select all of the price books you want to update. Then selected product initial price is based on the standard price book list price.'
+    async showInstructions(){
+        const result = await LightningConfirm.open({
+            message: this.instructions,
+            variant: 'headerless',
+            label: 'this is the aria-label value',
+            // setting theme would have no effect
+        });
+        //result is true if OK was clicked
+        //and false if cancel was clicked
+        console.log('Result: '+ result);
+        //Confirm has been closed
+        
+    
+    }
+
     selectAllLabel = 'Select All'; 
     selectAllVar = 'success'; 
     massEdit(){
@@ -359,7 +420,7 @@ export default class AddPriceBookEntry extends LightningModal {
     }
 
     handleClose(){
-
-        this.close('cancel');
+        this.selectedPriceBookId = [];
+        this.close('close');
     }
 }
