@@ -154,6 +154,7 @@ export default class PriceSummary extends LightningElement {
             }
         })
     }
+    what; 
     async addProduct(){
         const result = await AddPriceBoookEntry.open({
             size: 'medium',
@@ -163,21 +164,27 @@ export default class PriceSummary extends LightningElement {
             if(res==='close'){
                 return; 
             }
-            const recordInputs = res.slice().map(draft =>{
+            //we need to figure out a way to catch some sort of conditional statement here. Because we can not run a upsert of blank id
+            //we can run that in apex so pass the mess to apex. 
+            this.what = res.mess;
+            let prods = res.prod;
+            
+                const recordInputs = prods.slice().map(draft =>{
+                    
+                    //let Id = draft.Id != '' ? draft.Id: undefined;
+                    let Pricebook2Id = draft.Pricebook2Id;
+                    let Product2Id = draft.Product2Id; 
+                    let UseStandardPrice = false; 
+                    let IsActive = draft.IsActive;
+                    let UnitPrice = draft.UnitPrice;
+                    let List_Margin__c = draft.List_Margin__c;
+                    let Hold_Margin__c = draft.Hold_Margin__c;
+                    const fields = {Pricebook2Id, Product2Id, UseStandardPrice, IsActive, UnitPrice, List_Margin__c, Hold_Margin__c}
+                    
+                    return fields;
+                })
 
-                let Pricebook2Id = draft.Pricebook2Id;
-                let Product2Id = draft.Product2Id; 
-                let UseStandardPrice = false; 
-                let IsActive = draft.IsActive;
-                let UnitPrice = draft.UnitPrice;
-                let List_Margin__c = draft.List_Margin__c;
-                let Hold_Margin__c = draft.Hold_Margin__c;
-                const fields = {Pricebook2Id, Product2Id, UseStandardPrice, IsActive, UnitPrice, List_Margin__c, Hold_Margin__c}
-        
-            return fields;
-            })
-        
-        
+
             savePBE({entries: recordInputs})
             .then((res)=>{
                 if(res === 'success'){
@@ -188,6 +195,15 @@ export default class PriceSummary extends LightningElement {
                             variant: 'success'
                         })
                     );
+                }else{
+                                            // Handle error
+                        this.dispatchEvent(
+                            new ShowToastEvent({
+                                title: 'Error Saving',
+                                message: res + ' may already be in that price book',
+                                variant: 'error'
+                            })
+                        )
                 }
             
                 this.changesMade = false; 
@@ -203,6 +219,8 @@ export default class PriceSummary extends LightningElement {
                             })
                         )
                     })
+            
+            
         }).catch((error)=>{
             console.error(error)
         })

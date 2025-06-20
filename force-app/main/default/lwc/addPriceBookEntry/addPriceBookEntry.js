@@ -6,8 +6,10 @@ import checkPriceBooks from '@salesforce/apex/getPriceBooks.addToPriceBook';
 import apexPriorityPricing from '@salesforce/apex/getPriceBooks.priorityBestPrice'
 import getAccountId from '@salesforce/apex/getPriceBooks.getAccId';
 import getPriorityPriceBooks from '@salesforce/apex/omsCPQAPEX.getPriorityPriceBooks';
+import findDuplicates from '@salesforce/apex/priceBookLogic.findNewGetPrice';
 import getPriceBooks from '@salesforce/apex/lwcHelper.getAllBuyerBooks';
-import getProducts from '@salesforce/apex/lwcHelper.product2LookUp';
+import getProducts from '@salesforce/apex/lwcHelper.product2LookUpWithCat';
+import getCats from '@salesforce/apex/lwcHelper.getPickListValues'; 
 import {roundNum} from 'c/programBuilderHelper';
 import {priorityPricing} from 'c/helperOMS'
 const SEARCH_DELAY = 500;
@@ -16,9 +18,11 @@ const REGEX_SOSL_RESERVED = /(\?|&|\||!|\{|\}|\[|\]|\(|\)|\^|~|\*|:|"|\+|\\)/g;
 const columns = [{ label: 'Name', fieldName: 'Name' }]
 export default class AddPriceBookEntry extends LightningModal {
     product2Id;
-    queryTerm;
+    queryTerm = '';
     @api priceBookId 
     @track newProds = []
+    //this is the final array to send to apex
+    @track toApexArray = [];
     foundProducts = true; 
     apexOrderBy=''
     pricebookFound = true; 
@@ -40,13 +44,16 @@ export default class AddPriceBookEntry extends LightningModal {
     btnText = 'Add Products'; 
     showResult = false;
     singlePriceBook; 
+    catOptions; 
+    cat;
     @track displayText = []; 
     connectedCallback() {
         this.handleAllPriceBooks();
+        this.loadCats(); 
         this.loaded = true; 
     }
     //productSearching
-    @wire(getProducts,{searchTerm:'$queryTerm'})
+    @wire(getProducts,{searchTerm:'$queryTerm', category: '$cat'})
         wiredList(result){
             if(result.data){
                 let data = result.data;
@@ -66,7 +73,14 @@ export default class AddPriceBookEntry extends LightningModal {
                 console.log(result.error); 
             }
         }
-        
+    //get categories
+    loadCats(){
+        getCats({objName:'Product2', fieldAPI:'Subcategory__c'})
+            .then((x)=>{
+                this.catOptions = x;
+            })
+    }
+
     handleClear(mess){
         let clearWhat = mess.detail; 
         switch(clearWhat){
@@ -104,8 +118,7 @@ export default class AddPriceBookEntry extends LightningModal {
             let priceData = await getPriorityPriceBooks({accountId: accountId})
             //helper function to organize the price books 
             let pricingInfo = await priorityPricing(priceData);
-            this.priorityPricebooksId = [...pricingInfo.priceBookIdArray]; 
-             
+            this.priorityPricebooksId = [...pricingInfo.priceBookIdArray]
         } catch (error) {
             console.log('processing price book err=> ',error);
         }
@@ -145,8 +158,22 @@ export default class AddPriceBookEntry extends LightningModal {
  
                 break;
             case 'Save and Close':
-                let products = this.createAllEntries();
-                this.close(products)
+                let type; 
+                if(this.singlePriceBook === false){
+                    let sync = this.syncPrice()
+                    type = 'multiple';
+                }else{
+                    let products = this.createAllEntries();
+                    type = 'single'
+                }
+                console.log(1, this.toApexArray)
+                //we need to figure out a way to pass a message to the parent to let it know which map to run. We can't
+                //pass a blank or null value of price book entry id to apex for upsert. 
+                const final  = [...this.toApexArray]
+                this.toApexArray = []; 
+                console.log(1, this.toApexArray)
+                const back = {mess:type, prod: final}
+                this.close(back)
                 break;
             default:
                 console.error('switch statement broke')
@@ -208,11 +235,27 @@ export default class AddPriceBookEntry extends LightningModal {
         const key = keyWord.target.value.trim().replace(REGEX_SOSL_RESERVED, '?').toLowerCase();
          this.searchTimeOut = setTimeout(()=>{
              this.queryTerm = key; 
+             this.cat = this.cat ===undefined ? 'All': this.cat; 
              this.searchTimeOut = null; 
 
              
          }, SEARCH_DELAY);
     }
+
+    handleCat(evt){
+        if(this.searchTimeOut){
+            clearTimeout(this.searchTimeOut);
+        }
+        this.showResult = false; 
+        const key = evt.target.value; 
+        this.searchTimeOut = setTimeout(()=>{
+             this.cat = key; 
+             this.searchTimeOut = null; 
+
+             
+         }, SEARCH_DELAY);
+    }
+    
     handleSelectBook(event){
         event.preventDefault();
         let index = this.displayText.findIndex(item => item.Id === event.target.name)
@@ -225,12 +268,14 @@ export default class AddPriceBookEntry extends LightningModal {
             this.displayText = [...this.displayText]; 
             this.data = [...this.data];
             !check ? this.removeId(this.displayText[index].Id) : this.selectedPriceBookId.push(this.displayText[index])
+            
         }
 
     }
     removeId(id){
         let x = this.selectedPriceBookId.map(e=>e.Id).indexOf(id);
-        this.selectedPriceBookId.splice(x, 1); 
+        this.selectedPriceBookId.splice(x, 1);
+      
     }
 
     handleProduct(mess){
@@ -245,28 +290,73 @@ export default class AddPriceBookEntry extends LightningModal {
         let mess = {detail: 'product'}
         let back
         if(this.singlePriceBook === false){
-            back = await checkPriceBooks({pricebook: '01s410000077vSKAAY' , productId: this.product2Id, orderBy:this.apexOrderBy })
+            let x = this.selectedPriceBookId.map(e=>e.Pricebook2Id)
+            //So here we need to check if the product is already in a price book then update that
+            back = await findDuplicates({PriceBookIds: x , ProductId: this.product2Id })
+
+            let final = this.seperateMultiplePriceBooks(x, back.inBooks)
+            this.addMultiList(final, back.standardPrice)
         }else{
             back = await apexPriorityPricing({priceBookIds: this.priorityPricebooksId, productId:this.product2Id})
+//add single value to display list
+            this.addList(back, true); 
         }
-        let add = await this.addList(back);
+        
+       // this.addList(back);
         this.handleClear(mess)
     }
-
-    addList(x){
-        if(x){            
+    //this removes price book entries that have already been created.
+    //If user selects all price books and then adds a product that is already in one price book this will remove that entry here. 
+    seperateMultiplePriceBooks(selectedId, apexData){
+       
+        let stepOne = new Set(apexData.map(x=>x.Pricebook2Id))
+        let newEntries = selectedId.filter(entry=>!stepOne.has(entry))
+        return newEntries; 
+    }
+    addMultiList(pbId, stdPrice){
+        //the Id cannot do an upsert w/blank or null values. We need to publish a message on close to let the 'parent know which message to run
+        for(let i=0; i<pbId.length; i++){
+            let prod ={
+                    sObjectType: 'PricebookEntry',
+                    //Id: '',
+                    Pricebook2Id: pbId[i],
+                    Product2Id: this.product2Id,
+                    UnitPrice: stdPrice.UnitPrice,
+                    List_Margin__c: this.checkMarg(stdPrice),
+                    name: stdPrice.Product2.ERP_Name__c,
+                    flrPrice: stdPrice.Floor_Price__c,
+                    PriceBookName: stdPrice.Pricebook2.Name,
+                    Product_Cost__c: stdPrice.Agency_Product__c ? 'agency': stdPrice.Product_Cost__c,
+                    UseStandardPrice: false,
+                    Hold_Margin__c: true,
+                    Hold_Rounded_Margin__c: false,
+                    IsActive: true,
+                    isChanged__c: false,
+                    readOnly: stdPrice.Agency_Product__c ? true : false
+            }
+            //final array to send
+            this.toApexArray.push(prod); 
+        }
+        //add to display Array to allow editing
+        this.addList(stdPrice, false); 
+    }
+    addList(x, boolean){
+        if(x && boolean){        
+            //Need to find a way that if the price book entry is from standard that the Id field is populated. 
+            //the upsert on price book entry will not work with '', undefined or null values!  
             this.newProds = [
                 ...this.newProds,{
                     sObjectType: 'PricebookEntry',
-                    Id: '',
-                    Pricebook2Id: '',
+                    //this line we need to look at
+                    //Id:x[0].Pricebook2Id  === '01s410000077vSKAAY' ? '' : x[0].Id,
+                    Pricebook2Id: this.selectedPriceBookId[0].Pricebook2Id,
                     Product2Id: this.product2Id,
                     UnitPrice: x[0].UnitPrice,
                     List_Margin__c: this.checkMarg(x[0]),
                     name: x[0].Product2.ERP_Name__c,
                     flrPrice: x[0].Floor_Price__c,
                     PriceBookName: x[0].Pricebook2.Name,
-                    Product_Cost__c: x[0].Product_Cost__c,
+                    Product_Cost__c: x[0].Agency_Product__c ? 'Agency':x[0].Product_Cost__c,
                     UseStandardPrice: false,
                     Hold_Margin__c: true,
                     Hold_Rounded_Margin__c: false,
@@ -275,8 +365,32 @@ export default class AddPriceBookEntry extends LightningModal {
                     readOnly: x[0].Agency_Product__c ? true : false
                 }
             ]
+            //now add to the list of products to get upserted. The above just arranges it so that the user can interact with it. 
+            //this was causing duplicates hoping this solves it below formally was --> this.toApexArray = [...this.toApexArray, ...this.newProds] 
+           this.toApexArray = [...this.newProds]
+    }else if(x && !boolean){
+            this.newProds = [
+                ...this.newProds,{
+                    sObjectType: 'PricebookEntry',
+                    Id: x.Id  === '01s410000077vSKAAY' ? '': x.Id,
+                    Pricebook2Id: '',
+                    Product2Id: this.product2Id,
+                    UnitPrice: x.UnitPrice,
+                    List_Margin__c: this.checkMarg(x),
+                    name: x.Product2.ERP_Name__c,
+                    flrPrice: x.Floor_Price__c,
+                    PriceBookName: x.Pricebook2.Name,
+                    Product_Cost__c: x.Agency_Product__c ? 'Agency': x.Product_Cost__c,
+                    UseStandardPrice: false,
+                    Hold_Margin__c: true,
+                    Hold_Rounded_Margin__c: false,
+                    IsActive: true,
+                    isChanged__c: false,
+                    readOnly: x.Agency_Product__c ? true : false
+                }
+            ]
     }
-        
+    //this.toApexArray = [...this.toApexArray, ...this.newProds]    
     }
 //will check if product is agency or list margin is set
     checkMarg(item){
@@ -292,7 +406,7 @@ export default class AddPriceBookEntry extends LightningModal {
     handleListMargin(evt){
         window.clearTimeout(this.delay); 
         let index = this.newProds.findIndex(x => x.Product2Id === evt.target.name);
-    
+        
         this.newProds[index].List_Margin__c = roundNum(evt.detail.value,2)
         this.delay = setTimeout(()=>{
             this.changesMade = true;
@@ -321,6 +435,17 @@ export default class AddPriceBookEntry extends LightningModal {
         this.newProds[index].Hold_Margin__c = evt.target.checked; 
         this.newProds[index].isEdited = true;
     }
+
+    //this function will sync the price book entries to be created with the display products that are used to capture the user input
+    syncPrice(){
+        this.toApexArray.forEach(product=>{
+            const found = this.newProds.find(x=>x.Product2Id === product.Product2Id)
+            if(found){
+                product.UnitPrice = found.UnitPrice;
+                product.List_Margin__c = found.List_Margin__c;
+            }
+        })
+    }
     //this will create all price book entries from the price books selected
     createAllEntries(){
         let updated = []
@@ -335,8 +460,9 @@ export default class AddPriceBookEntry extends LightningModal {
         return updated; 
     }
     handleSave(){    
-        if(this.newProds.length>0){
-            this.close(this.newProds)
+        if(this.toApexArray.length>0){
+           // this.close(this.newProds)
+           console.log(this.toApexArray); 
         }else{
             this.handleAlertClick(); 
         }
@@ -401,7 +527,8 @@ export default class AddPriceBookEntry extends LightningModal {
 
             for(let i= 0; i<this.displayText.length;i++){
                 this.displayText[i].checked = true;
-                this.selectedPriceBookId.push(this.displayText[i].Id)
+                this.selectedPriceBookId.push(this.displayText[i])
+                //this.selectedPriceBookId.push(this.displayText[i].Pricebook2Id)
             }
             this.displayText = [...this.displayText];
             this.data = [...this.displayText]

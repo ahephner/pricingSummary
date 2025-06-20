@@ -49,6 +49,14 @@
         <br/>
           <div class="slds-col slds-size_1-of-1 lineUp">
             <lightning-input type="text" class='searchBar' label={searchLabel} onchange={handleProdSearch}></lightning-input> 
+            <lightning-combobox
+                name="subCat"
+                class="searchBar"
+                label="Category"
+                value={cat}
+                placeholder='All'
+                options={catOptions}
+                onchange={handleCat} ></lightning-combobox>
         </div>
       </div>
       <div class="outside slds-scrollable_y  outBox" style="height:30rem;width:100%">

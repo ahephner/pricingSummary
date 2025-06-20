@@ -6,7 +6,7 @@ import getProductPrice from '@salesforce/apex/getPriceBooks.getProductPrice';
 import allPriceBooks from '@salesforce/apex/getPriceBooks.allPriceBooks';
 import getCounterUpdates from '@salesforce/apex/getPriceBooks.getCounterUpdates';
 import checkPriceBooks from '@salesforce/apex/getPriceBooks.checkPriceBooks';
-import savePBE from '@salesforce/apex/getPriceBooks.savePBE';
+import savePBE from '@salesforce/apex/getPriceBooks.updatePBE';
 import { updateRecord } from 'lightning/uiRecordApi';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import { deleteRecord} from 'lightning/uiRecordApi';
@@ -258,6 +258,7 @@ export default class DisplayTable extends LightningElement {
                 this.fetchedData[i].UnitPrice = this.fetchedData[i].Floor_Price__c
                 this.fetchedData[i].List_Margin__c = this.fetchedData[i].Floor_Margin__c
                 this.fetchedData[i].goodPrice = true; 
+                this.fetchedData[i].isEdited = true; 
                 this.template.querySelector(`[data-price="${this.fetchedData[i].Id}"]`).style.color ="black";
                 this.template.querySelector(`[data-margin="${this.fetchedData[i].Id}"]`).style.color ="black";
             }
