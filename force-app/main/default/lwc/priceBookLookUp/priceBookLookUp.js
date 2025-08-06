@@ -31,7 +31,7 @@ export default class PriceBookLookUp extends LightningElement {
                 this.results = result.data;
                 this.loading = false;
                 this.showResult = true;
-               // console.log(this.results);  
+               //console.log(this.results);  
             }else if(result.error){
                 console.log(result.error); 
             }

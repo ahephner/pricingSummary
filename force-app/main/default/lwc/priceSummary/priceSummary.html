@@ -12,6 +12,11 @@
     class="slds-m-left_medium"
     variant="success"
     onclick={addProduct}></lightning-button>
+
+    <lightning-button label="Add Customers to Shared Book"
+    class="slds-m-left_small"
+    onclick={addToPricebook}></lightning-button>
+    
     <div class="slds-grid">
         <div class="slds-col slds-size_2-of-3 slds-m-left_small">
             <c-price-book-look-up onnewpricebook={handlePriceBook}

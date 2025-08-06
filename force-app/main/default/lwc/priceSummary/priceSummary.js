@@ -2,12 +2,16 @@ import { LightningElement } from 'lwc';
 import singlePicklist from '@salesforce/apex/lwcHelper.getPickListValues'; 
 import LightningAlert from 'lightning/alert';
 import AddPriceBoookEntry from 'c/addPriceBookEntry'; 
+import AddCustomerGroups from 'c/addCustomerGroups';
 import savePBE from '@salesforce/apex/getPriceBooks.savePBE';
+import createSharedBook from '@salesforce/apex/omsOppUpdatePricing.createGroupPriceBook'; 
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
+
 export default class PriceSummary extends LightningElement {
     hideFilter = true;
     limitValue = 'no';
     orderByValue = 'none';
+    
     product2Id;
     accountId;
     primaryCategory;   
@@ -107,26 +111,80 @@ export default class PriceSummary extends LightningElement {
         //     this.handleSearch()
         // }
     }
+    async addToPricebook(){
+        const res = await AddCustomerGroups.open({
+            size: 'medium',
+            description: 'Accessible description of modal\'s purpose',
+            content: 'Passed into content api',
+        }).then((back)=>{
+            //handle user wants to stop
+            if(back==='aborted'){
+                return; 
+            }else{
+                const {bookId, customers, needBuyer} = back; 
+                if(bookId.length>0 && (customers.length>0|| needBuyer.length>0)){
+                    // console.log('sending');
+                    // console.log(customers)
+                    // console.log(needBuyer);
+                createSharedBook({priceBookId: bookId[0], allReadyBuyers: customers, newBuyers:needBuyer})
+                   .then((res)=>{
+                    //back message
+                    if(res === 'success'){
+                        this.dispatchEvent(
+                            new ShowToastEvent({
+                                title: 'Price Book Created',
+                                message: 'Please Refresh Screen',
+                                variant: 'success'
+                            })
+                        );
+                    }
+                   }).catch((err)=>{
+                    console.warn(err)
+                                            // Handle error
+                        this.dispatchEvent(
+                            new ShowToastEvent({
+                                    title: 'Error Creating Price Book',
+                                    message: err.body.output.errors[0].message,
+                                    variant: 'error'
+                            })
+                        )
+                   })
+    
+                }
+            }
+        })
+    }
+    what; 
     async addProduct(){
         const result = await AddPriceBoookEntry.open({
             size: 'medium',
             description: 'Accessible description of modal\'s purpose',
             content: 'Passed into content api',
         }).then((res)=>{
-            const recordInputs = res.slice().map(draft =>{
+            if(res==='close'){
+                return; 
+            }
+            //we need to figure out a way to catch some sort of conditional statement here. Because we can not run a upsert of blank id
+            //we can run that in apex so pass the mess to apex. 
+            this.what = res.mess;
+            let prods = res.prod;
+            
+                const recordInputs = prods.slice().map(draft =>{
+                    
+                    //let Id = draft.Id != '' ? draft.Id: undefined;
+                    let Pricebook2Id = draft.Pricebook2Id;
+                    let Product2Id = draft.Product2Id; 
+                    let UseStandardPrice = false; 
+                    let IsActive = draft.IsActive;
+                    let UnitPrice = draft.UnitPrice;
+                    let List_Margin__c = draft.List_Margin__c;
+                    let Hold_Margin__c = draft.Hold_Margin__c;
+                    const fields = {Pricebook2Id, Product2Id, UseStandardPrice, IsActive, UnitPrice, List_Margin__c, Hold_Margin__c}
+                    
+                    return fields;
+                })
 
-                let Pricebook2Id = draft.Pricebook2Id;
-                let Product2Id = draft.Product2Id; 
-                let UseStandardPrice = false; 
-                let IsActive = draft.IsActive;
-                let UnitPrice = draft.UnitPrice;
-                let List_Margin__c = draft.List_Margin__c;
-                let Hold_Margin__c = draft.Hold_Margin__c;
-                const fields = {Pricebook2Id, Product2Id, UseStandardPrice, IsActive, UnitPrice, List_Margin__c, Hold_Margin__c}
-        
-            return fields;
-            })
-        
+
             savePBE({entries: recordInputs})
             .then((res)=>{
                 if(res === 'success'){
@@ -137,7 +195,17 @@ export default class PriceSummary extends LightningElement {
                             variant: 'success'
                         })
                     );
+                }else{
+                                            // Handle error
+                        this.dispatchEvent(
+                            new ShowToastEvent({
+                                title: 'Error Saving',
+                                message: res + ' may already be in that price book',
+                                variant: 'error'
+                            })
+                        )
                 }
+            
                 this.changesMade = false; 
             }).catch(error => {
                         console.log(error);
@@ -151,6 +219,8 @@ export default class PriceSummary extends LightningElement {
                             })
                         )
                     })
+            
+            
         }).catch((error)=>{
             console.error(error)
         })

@@ -6,15 +6,24 @@
         <template if:true={pricebookFound}>
             <div class="slds-grid slds-wrap">
             <p class="slds-col slds-size_1-of-1">What Pricebook to add products to. <i>Note you can only add to Price Books you own</i></p> 
+            <p class="slds-col slds-size_1-of-1">Select ONE Account Based Price Book to use priority pricing</p>
             <br/>
             <div class="slds-col slds-size_1-of-1 lineUp">
-              <lightning-input type="text" class='searchBar' label='Search Pricebooks' onchange={handleSearch}></lightning-input> 
+              <lightning-input type="text" class='searchBar' label={searchLabel} onchange={handleSearch}></lightning-input> 
               <lightning-button 
                 class="slds-m-top_large slds-m-left_medium"
                 variant={selectAllVar}
                 label={selectAllLabel} 
                 onclick={massEdit} 
               ></lightning-button>
+            <template if:false={addProducts}>
+              <lightning-button
+                class="slds-m-top_large slds-m-left_medium"
+                label="Instructions"
+                variant="destructive"
+                onclick={showInstructions}>
+              </lightning-button>
+            </template>
             </div>
           </div>
             <div class="outside slds-scrollable_y  outBox" style="height:30rem;width:100%">
@@ -25,7 +34,8 @@
                                                           size="small" selected={x.checked}
                                                           onclick={handleSelectBook} name={x.Id}
                                                           alternative-text="Like" class="slds-m-left_xx-small" data-button-number="04"></lightning-button-icon-stateful>
-                          <p class="slds-m-left_small">{x.Name}</p>
+                          <p class="slds-m-left_small">{x.Pricebook2.Name}</p>
+                          <p class="slds-text-body_regular slds-m-left_small slds-m-top_xx-small">Price Book Type:</p> <span class="slds-text-body_small slds-m-left_x-small slds-m-top_xx-small">{x.iconName}</span>
                       </div>
                   </div>
                   </template>
@@ -38,7 +48,15 @@
       <p class="slds-col slds-size_1-of-1">Select Products to add.</p> 
         <br/>
           <div class="slds-col slds-size_1-of-1 lineUp">
-            <lightning-input type="text" class='searchBar' label='Search Pricebooks' onchange={handleProdSearch}></lightning-input> 
+            <lightning-input type="text" class='searchBar' label={searchLabel} onchange={handleProdSearch}></lightning-input> 
+            <lightning-combobox
+                name="subCat"
+                class="searchBar"
+                label="Category"
+                value={cat}
+                placeholder='All'
+                options={catOptions}
+                onchange={handleCat} ></lightning-combobox>
         </div>
       </div>
       <div class="outside slds-scrollable_y  outBox" style="height:30rem;width:100%">
@@ -110,6 +128,7 @@
               <th data-label="Opportunity Name" scope="row">
               <div class="slds-truncate" title="Cloudhub">
                 {x.name}
+                <lightning-helptext icon-name="utility:salesforce1" content={x.PriceBookName}></lightning-helptext>
               </div>
               </th>
               <td data-label="Account Name">

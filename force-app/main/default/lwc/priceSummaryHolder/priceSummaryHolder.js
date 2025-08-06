@@ -1,10 +1,13 @@
 import { LightningElement, track } from 'lwc';
 import getPriceBooks from '@salesforce/apex/omsCPQAPEX.getPriorityPriceBooks';
-
+import {priorityPricing} from 'c/helperOMS'
 export default class PriceSummaryHolder extends LightningElement {
     acctPriceBooks = [];
     priceBookName;
     listPrice; 
+    accSearch = false;
+    passedaccount;  
+    showAll= true; 
     @track childProps = {
         productId: '',
         accountId: '',
@@ -21,25 +24,20 @@ export default class PriceSummaryHolder extends LightningElement {
     }
     foundProducts = false;
     async newAccountGetPB(event){
-        //no double values and assign the standard price book up front; 
-        let list = new Set()
-        //let list = new Set(); 
-        let data = await getPriceBooks({accountId: event.detail}); 
-        if(data){
-            let standardPricebook = {Pricebook2Id: '01s410000077vSKAAY',Priority:6, PriceBook2:{Name:'Standard'} }
-            let order = [...data, standardPricebook].filter((x)=>x.Priority!=undefined).sort((a,b)=>{
-                return a.Priority - b.Priority; 
-            })
-
-            if(order.length>=1 && data != undefined){
-                for(let i = 0; i<order.length;i++){
-                    list.add(order[i].Pricebook2Id);
-                }
-                console.log('updated pricebook ids ' , order)
+        
+        let data = await getPriceBooks({accountId: event.detail});
+        let pricingInfo = await priorityPricing(data);
+        
+        this.passedaccount = pricingInfo.priceBooksObjArray.map(item=>{
+            console.log(item)
+            return{
+                Id: item?.Id??'123',
+                Name: item.Pricebook2?.Name ?? 'Default', 
+                Priority: item.Priority
             }
-        }
-
-        this.acctPriceBooks = [...list];
+        }); 
+        this.acctPriceBooks = [...pricingInfo.priceBookIdArray];
+        this.accSearch = true; 
     }
     //this function recieves and transmits the search prompts here
     //the reason for the timeout is that the lwc:spread function has not native async when built 2/12/24 or at least this dev was unaware. 
@@ -85,17 +83,26 @@ export default class PriceSummaryHolder extends LightningElement {
         let index = evt.target.name; 
         this.fetchedData[index].readOnly = false; 
     }
-    showInfo = false; 
-    async handleAverages(evt){
-        let wait = await this.letSpreadBreath(400)
-        this.showInfo = true; 
-        this.avgProps = {
-            unitPrice: evt.detail?.unitprice ?? 'not found',
-            margin: evt.detail?.margins ?? 'not found',
-            productId: this.productId
-        }
-    }
 
+    //NOT USED ANYMORE USED TO SHOW PRICE BOOK AVERAGES. MORE INFO FOUND IN DISPLAYTABLE JS ON COMMENTED OUT FUNCTION alertPricingUpdate
+    // showInfo = false; 
+    // async handleAverages(evt){
+    //     let wait = await this.letSpreadBreath(400)
+    //     this.showInfo = true; 
+    //     this.avgProps = {
+    //         unitPrice: evt.detail?.unitprice ?? 'not found',
+    //         margin: evt.detail?.margins ?? 'not found',
+    //         productId: this.productId
+    //     }
+    // }
+    iconName = 'utility:chevronleft'; 
+    searchBoxClass = 'slds-col slds-size_1-of-3';
+    tableClass='slds-col slds-size_2-of-3';
+    handleDisplay(){
+        this.showAll = !this.showAll; 
+        this.iconName = this.iconName === 'utility:chevronleft' ? 'utility:chevronright':'utility:chevronleft';
+        this.tableClass = this.showAll ? 'slds-col slds-size_2-of-3':'slds-col slds-size_1-of-1' 
+    }
     counterInfo(){
         this.template.querySelector("c-display-table").counterProds();
     }
