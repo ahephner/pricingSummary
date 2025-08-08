@@ -294,8 +294,10 @@ export default class AddPriceBookEntry extends LightningModal {
             //So here we need to check if the product is already in a price book then update that
             back = await findDuplicates({PriceBookIds: x , ProductId: this.product2Id })
 
-            let final = this.seperateMultiplePriceBooks(x, back.inBooks)
-            this.addMultiList(final, back.standardPrice)
+
+            //this used to run the de duplicates. By gettng a set then checking apex call and comparing in below function
+            ///let final = this.seperateMultiplePriceBooks(x, back.inBooks)
+            this.addMultiList(x, back.standardPrice)
         }else{
             back = await apexPriorityPricing({priceBookIds: this.priorityPricebooksId, productId:this.product2Id})
 //add single value to display list
@@ -307,12 +309,14 @@ export default class AddPriceBookEntry extends LightningModal {
     }
     //this removes price book entries that have already been created.
     //If user selects all price books and then adds a product that is already in one price book this will remove that entry here. 
-    seperateMultiplePriceBooks(selectedId, apexData){
+    //seperateMultiplePriceBooks(selectedId, apexData){
        
-        let stepOne = new Set(apexData.map(x=>x.Pricebook2Id))
-        let newEntries = selectedId.filter(entry=>!stepOne.has(entry))
-        return newEntries; 
-    }
+        //let stepOne = new Set(apexData.map(x=>x.Pricebook2Id))
+        //return stepOne; 
+        //this used to de-duplicate now done in apex
+        //let newEntries = selectedId.filter(entry=>!stepOne.has(entry))
+        //return newEntries; 
+    //}
     addMultiList(pbId, stdPrice){
         //the Id cannot do an upsert w/blank or null values. We need to publish a message on close to let the 'parent know which message to run
         for(let i=0; i<pbId.length; i++){

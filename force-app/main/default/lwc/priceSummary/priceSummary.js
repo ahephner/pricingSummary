@@ -3,7 +3,9 @@ import singlePicklist from '@salesforce/apex/lwcHelper.getPickListValues';
 import LightningAlert from 'lightning/alert';
 import AddPriceBoookEntry from 'c/addPriceBookEntry'; 
 import AddCustomerGroups from 'c/addCustomerGroups';
-import savePBE from '@salesforce/apex/getPriceBooks.savePBE';
+import savePBE from '@salesforce/apex/getPriceBooks_CR.savePBE';
+//Caige's Method above and Old Method Below
+//import savePBE from '@salesforce/apex/getPriceBooks.savePBE';
 import createSharedBook from '@salesforce/apex/omsOppUpdatePricing.createGroupPriceBook'; 
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 
@@ -187,7 +189,8 @@ export default class PriceSummary extends LightningElement {
 
             savePBE({entries: recordInputs})
             .then((res)=>{
-                if(res === 'success'){
+                console.log(res);
+                if(res.status === 'Success'){
                     this.dispatchEvent(
                         new ShowToastEvent({
                             title: 'Success',
@@ -195,12 +198,29 @@ export default class PriceSummary extends LightningElement {
                             variant: 'success'
                         })
                     );
+                }else if(res.status === 'Success with Dupes'){
+                        
+                    let duplicated = [...res.duplicates];
+                    let mess = 'Duplicate Id '; 
+                    for(let i=0; i< duplicated.length; i++){
+                            console.log(typeof duplicated[i].Product2Id)
+                            mess += duplicated[i].Product2Id;
+                    }
+                    mess.toString(); 
+                        this.dispatchEvent(
+                            new ShowToastEvent({
+                                title: res.message,
+                                message: mess,
+                                variant: 'success'
+                            })
+                    );
                 }else{
-                                            // Handle error
+                    let err = res.errors.toString(); 
+                        // Handle error
                         this.dispatchEvent(
                             new ShowToastEvent({
                                 title: 'Error Saving',
-                                message: res + ' may already be in that price book',
+                                message: err,
                                 variant: 'error'
                             })
                         )
